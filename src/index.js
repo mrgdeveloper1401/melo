@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import morgan from "morgan";
 import { pool } from './data/db.js';
 import colors from 'colors';
-
+import adminUser from "./routers/admin/admin.js";
 
 // config environment
 dotenv.config();
@@ -15,6 +15,8 @@ const app = express();
 const appPort = process.env.PROGRAM_PORT;
 const defaultPort = 30001;
 const defaultState = "dev";
+const adminUserRouter = adminUser;
+
 
 // middleware
 app.use(express.json());
@@ -23,7 +25,10 @@ app.use(morgan(process.env.MORGAN_STATE || defaultState))
 
 
 // routes
-
+app.use(
+    "/v1/admin/",
+    adminUserRouter
+)
 
 // error handling middleware
 
