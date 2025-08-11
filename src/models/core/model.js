@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require('sequelize');
-const sequelize = require("../db/postgres_db");
+const sequelize = require("../../../db/postgres_db");
 
 class BaseModel extends Model {}
 class PublicNotification extends Model {}
