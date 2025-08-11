@@ -15,11 +15,10 @@ const app = express();
 const appPort = process.env.PROGRAM_PORT;
 const defaultPort = 30001;
 const defaultState = "dev";
-const { blue } = colors;
 
 // middleware
 app.use(express.json());
-// app.use(cors);
+app.use(cors());
 app.use(morgan(process.env.MORGAN_STATE || defaultState))
 
 
@@ -31,7 +30,7 @@ app.use(morgan(process.env.MORGAN_STATE || defaultState))
 
 // postgres connection
 app.get(
-    "/",
+    "/db/",
     async (req, res) => {
         const result = await pool.query("select current_database();")
         res.send(`Database name is: ${result.rows[0].current_database}`);
