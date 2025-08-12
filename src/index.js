@@ -25,6 +25,7 @@ const authUserRouter = authUser;
 
 
 // middleware
+setupSwagger(app) // swagger doc
 app.use(express.json());
 app.use(cors());
 app.use(morgan(process.env.MORGAN_STATE || defaultState))
@@ -56,9 +57,6 @@ app.use(
 // );
 connectionDb();
 
-
-// swagger doc
-setupSwagger(app)
 
 // server running
 app.listen(
