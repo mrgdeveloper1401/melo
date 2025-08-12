@@ -2,10 +2,12 @@ import express from "express";
 import cors from 'cors';
 import dotenv from 'dotenv';
 import morgan from "morgan";
-import { pool } from './data/db.js';
-import colors from 'colors';
+// import { pool } from './data/db.js';
+// import colors from 'colors';
 import adminUser from "./routers/admin/admin.js";
 import authUser from './routers/user/user.js';
+// import errorHandel from "./middleware/errorHandler.js";
+import { connectionDb } from "./data/db.js";
 
 // config environment
 dotenv.config();
@@ -18,6 +20,8 @@ const defaultPort = 30001;
 const defaultState = "dev";
 const adminUserRouter = adminUser;
 const authUserRouter = authUser;
+// const errorHandelMiddleware = errorHandel;
+
 
 // middleware
 app.use(express.json());
@@ -30,23 +34,26 @@ app.use(
     "/v1/admin/",
     adminUserRouter
 )
-// app.use(
-//     "/v1/auth/",
-//     authUserRouter
-// )
+app.use(
+    "/v1/auth/",
+    authUserRouter
+)
+
 
 // error handling middleware
+// app.use(errorHandelMiddleware())
 
 
 // postgres connection
-app.get(
-    "/db/",
-    async (req, res) => {
-        const result = await pool.query("select current_database();")
-        res.send(`Database name is: ${result.rows[0].current_database}`);
-        console.log(`database name is ${result.rows[0].current_database}`.blue);
-    }
-);
+// app.get(
+//     "/db/",
+//     async (req, res) => {
+//         const result = await pool.query("select current_database();")
+//         res.send(`Database name is: ${result.rows[0].current_database}`);
+//         console.log(`database name is ${result.rows[0].current_database}`.blue);
+//     }
+// );
+connectionDb();
 
 
 // server running

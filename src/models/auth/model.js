@@ -1,5 +1,4 @@
-import DataTypes from 'sequelize';
-import Sequelize from "sequelize";
+import {DataTypes, Sequelize} from 'sequelize';
 const sequelize = required("../core/model.js")
 
 
