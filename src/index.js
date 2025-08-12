@@ -8,6 +8,7 @@ import adminUser from "./routers/admin/admin.js";
 import authUser from './routers/user/user.js';
 // import errorHandel from "./middleware/errorHandler.js";
 import { connectionDb } from "./data/db.js";
+import { setupSwagger } from "./routers/doc/swagger.js";
 
 // config environment
 dotenv.config();
@@ -55,6 +56,9 @@ app.use(
 // );
 connectionDb();
 
+
+// swagger doc
+setupSwagger(app)
 
 // server running
 app.listen(
