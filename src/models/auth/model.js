@@ -1,8 +1,8 @@
 import {DataTypes, Sequelize} from 'sequelize';
-const sequelize = required("../core/model.js")
+// const sequelize = required("../core/model.js")
 
 
-class User extends Model {}
+// class User extends Model {}
 // class Follow extends Model {}
 // class Wallet extends Model {}
 // class CartNumber extends Model {}
@@ -10,62 +10,63 @@ class User extends Model {}
 // class UserNotification extends Model {}
 
 
-User.init(
-    {   id: {
-            type: DataTypes.BIGINT,
-            primaryKey: true,
-            autoIncrement: true
-        },
-        username: {
-            type: DataTypes.CHAR(64),
-            allowNull: false,
-            unique: true
-        },
-        email: {
-            type: DataTypes.CHAR(100),
-            allowNull: false,
-            unique: true,
-            validate: {
-                isEmail: true
-            }
-        },
-        password: {
-            type: DataTypes.CHAR(128),
-            allowNull: false
-        },
-        mobile_phone: {
-            type: DataTypes.CHAR(11),
-            validate: {
-                is: {
-                    args: /^[0-9]{11}$/,
-                    mss: "The mobile number must be 11 digits and contain only numbers."
+export const CreateUserModel = (sequelize) => {
+    const User = sequelize.define(
+        "user",
+        {
+            id: {
+                type: DataTypes.BIGINT,
+                primaryKey: true,
+                autoIncrement: true
+            },
+            username: {
+                type: DataTypes.CHAR(64),
+                allowNull: false,
+                unique: true
+            },
+            email: {
+                type: DataTypes.CHAR(100),
+                allowNull: false,
+                unique: true,
+                validate: {
+                    isEmail: true
                 }
+            },
+            password: {
+                type: DataTypes.CHAR(128),
+                allowNull: false
+            },
+            mobile_phone: {
+                type: DataTypes.CHAR(11),
+                validate: {
+                    is: {
+                        args: /^[0-9]{11}$/,
+                        mss: "The mobile number must be 11 digits and contain only numbers."
+                    }
+                }
+            },
+            is_active: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: true
+            },
+            is_staff: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false
+            },
+            is_superuser: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false
+                
+            },
+            is_artist: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false
             }
-        },
-        is_active: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: true
-        },
-        is_staff: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false
-        },
-        is_superuser: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false
-            
-        },
-        is_artist: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false
-        }
-    },
-    {
-        sequelize,
-        modelName: "User",
-        tableName: "users"
     }
-);
+    );
+    return User
+}
+
 
 // Follow.init(
 //     {
