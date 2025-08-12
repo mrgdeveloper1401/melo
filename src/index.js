@@ -5,6 +5,7 @@ import morgan from "morgan";
 import { pool } from './data/db.js';
 import colors from 'colors';
 import adminUser from "./routers/admin/admin.js";
+import authUser from './routers/user/user.js';
 
 // config environment
 dotenv.config();
@@ -16,7 +17,7 @@ const appPort = process.env.PROGRAM_PORT;
 const defaultPort = 30001;
 const defaultState = "dev";
 const adminUserRouter = adminUser;
-
+const authUserRouter = authUser;
 
 // middleware
 app.use(express.json());
@@ -29,6 +30,10 @@ app.use(
     "/v1/admin/",
     adminUserRouter
 )
+// app.use(
+//     "/v1/auth/",
+//     authUserRouter
+// )
 
 // error handling middleware
 
