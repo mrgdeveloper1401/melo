@@ -46,9 +46,9 @@ const connectionDb = async () => {
         await postgresDb.authenticate();
     
         // define schema
-        // userModel = await CreateUserModel(postgresDb);
-        // await postgresDb.sync()
-        // console.log("database synced");
+        userModel = await CreateUserModel(postgresDb);
+        await postgresDb.sync()
+        console.log("database synced");
 
         console.log(colors.blue(`Connection database ${process.env.POSTDB_DB_NAME} successful!`));
     
