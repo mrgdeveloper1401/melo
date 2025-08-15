@@ -37,8 +37,19 @@ app.use(
     adminUserRouter
 )
 app.use(
-    "/v1/auth/",
+    "/v1/user/",
     authUserRouter
+)
+app.use(
+    "/",
+    (req, res) => {
+        res.status(200).json(
+            {
+                status: "success",
+                message: "REST API WORKING!"
+            }
+        )
+    }
 )
 
 
@@ -46,22 +57,17 @@ app.use(
 // app.use(errorHandelMiddleware())
 
 
-// postgres connection
-// app.get(
-//     "/db/",
-//     async (req, res) => {
-//         const result = await pool.query("select current_database();")
-//         res.send(`Database name is: ${result.rows[0].current_database}`);
-//         console.log(`database name is ${result.rows[0].current_database}`.blue);
-//     }
-// );
-connectionDb();
-
-
 // server running
-app.listen(
-    appPort || defaultPort,
-    () => {
-        console.log(`listen port http://localhost:${appPort || defaultPort}`);
+const startServer = async () => {
+    try {
+        await connectionDb();
+        app.listen(appPort || defaultPort, () => {
+            console.log(`Server running on http://localhost:${appPort || defaultPort}`);
+        });
+    } catch (err) {
+        console.error("Failed to connect to DB:", err);
+        process.exit(1);
     }
-);
+};
+
+startServer();

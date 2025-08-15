@@ -1,4 +1,3 @@
-// import { Pool } from "pg";
 import { config } from "dotenv";
 import {Sequelize} from "sequelize";
 import { CreateUserModel } from "../models/auth/model.js";
@@ -6,24 +5,6 @@ import colors from "colors";
 
 // load env
 config();
-
-// export const pool = new Pool(
-//     {
-//         user: process.env.POSTDB_USER,
-//         port: process.env.POSTDB_PORT,
-//         host: process.env.POSTDB_HOST,
-//         password: process.env.POSTDB_PASSWORD,
-//         database:process.env.POSTDB_DB_NAME
-//     }
-// )
-
-// pool.on(
-//     "connect",
-//     () => {
-//         console.log("Connection pool established with database");
-//     }
-// )
-
 
 // variable
 let userModel = null;
@@ -49,16 +30,12 @@ const connectionDb = async () => {
         userModel = await CreateUserModel(postgresDb);
         await postgresDb.sync()
         console.log("database synced");
-
         console.log(colors.blue(`Connection database ${process.env.POSTDB_DB_NAME} successful!`));
-    
+        return userModel;
     } catch (error) {
         console.error(colors.red('Connection failed:', error));
     };
 };
 
 
-export {
-  connectionDb,
-  userModel
-}
+export {connectionDb, userModel}

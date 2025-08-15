@@ -1,6 +1,4 @@
 import {DataTypes, Sequelize} from 'sequelize';
-// const sequelize = required("../core/model.js")
-
 
 // class User extends Model {}
 // class Follow extends Model {}
@@ -36,6 +34,10 @@ export const CreateUserModel = (sequelize) => {
                 type: DataTypes.CHAR(128),
                 allowNull: false
             },
+            pre_phone: {
+                type: DataTypes.CHAR(10),
+                allowNull: true
+            },
             mobile_phone: {
                 type: DataTypes.CHAR(11),
                 validate: {
@@ -62,6 +64,9 @@ export const CreateUserModel = (sequelize) => {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false
             }
+    },
+    {
+        timestamps: false,
     }
     );
     return User
