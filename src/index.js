@@ -2,11 +2,8 @@ import express from "express";
 import cors from 'cors';
 import dotenv from 'dotenv';
 import morgan from "morgan";
-// import { pool } from './data/db.js';
-// import colors from 'colors';
 import adminUser from "./routers/admin/admin.js";
 import authUser from './routers/user/user.js';
-// import errorHandel from "./middleware/errorHandler.js";
 import { connectionDb } from "./data/db.js";
 import { setupSwagger } from "./routers/doc/swagger.js";
 
@@ -21,7 +18,6 @@ const defaultPort = 30001;
 const defaultState = "dev";
 const adminUserRouter = adminUser;
 const authUserRouter = authUser;
-// const errorHandelMiddleware = errorHandel;
 
 
 // middleware

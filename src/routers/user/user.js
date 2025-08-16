@@ -2,8 +2,8 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import { userModel } from '../../data/db.js';
 import {body, validationResult} from "express-validator";
-import { json } from 'sequelize';
 import bcrypt from "bcrypt";
+import { loginController } from '../../controller/userController.js';
 
 
 // define router
@@ -58,7 +58,7 @@ router.post(
             const token = jwt.sign(
                 {userId: newUser.id},
                 process.env.DEV_SECRET_KEY,
-                {expiresIn: '1h'}
+                {expiresIn: process.env.JWT_EXPIRED_TIME}
             )
 
             res.status(201).json(
@@ -84,9 +84,7 @@ router.post(
 // login
 router.post(
     "/auth/login_by_username/",
-        (req, res) => {
-        console.log("object");
-    }
+    loginController
 )
 router.post(
     "/auth/request_otp/",
