@@ -17,14 +17,16 @@ module.exports = (sequelize, DataTypes) => {
     artist_id: DataTypes.INTEGER,
     album_id: DataTypes.INTEGER,
     title: DataTypes.STRING,
-    song_id: DataTypes.INTEGER,
+    track_id: DataTypes.INTEGER,
     release_date: DataTypes.DATE,
     is_active: DataTypes.BOOLEAN,
     play_count: DataTypes.INTEGER,
-    ganere_id: DataTypes.INTEGER
+    genre_id: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'ArtistAlbum',
+    timestamps: true,
+    tableName: "artist_album"
   });
   return ArtistAlbum;
 };

@@ -15,12 +15,14 @@ module.exports = (sequelize, DataTypes) => {
   }
   Comment.init({
     user_id: DataTypes.INTEGER,
-    song_id: DataTypes.INTEGER,
+    track_id: DataTypes.INTEGER,
     body: DataTypes.TEXT,
     is_active: DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'Comment',
+    tableName: "comment",
+    timestamps: true
   });
   return Comment;
 };

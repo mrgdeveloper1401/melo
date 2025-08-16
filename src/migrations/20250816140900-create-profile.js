@@ -10,10 +10,12 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       first_name: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: true
       },
       last_name: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: true
       },
       birth_date: {
         type: Sequelize.DATE,
@@ -37,7 +39,9 @@ module.exports = {
         references: {
           model: "Image",
           key: "id"
-        }
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
       },
       banner_image_id: {
         type: Sequelize.INTEGER,
@@ -45,7 +49,9 @@ module.exports = {
         references: {
           model: "Image",
           key: "id"
-        }
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
       },
       banner_gallery_image_id: {
         type: Sequelize.INTEGER,
@@ -53,7 +59,9 @@ module.exports = {
         references: {
           model: "Image",
           key: "id"
-        }
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
       },
       createdAt: {
         allowNull: false,

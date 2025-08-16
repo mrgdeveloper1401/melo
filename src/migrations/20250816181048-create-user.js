@@ -1,7 +1,4 @@
 'use strict';
-
-const { QueryInterface } = require('sequelize');
-
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -18,14 +15,16 @@ module.exports = {
       },
       email: {
         type: Sequelize.STRING,
-        unique: true
+        validate: {
+          isEmail: true
+        }
       },
       username: {
-        type: Sequelize.STRING,
-        unique: true
+        type: Sequelize.STRING
       },
       password: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false
       },
       is_active: {
         type: Sequelize.BOOLEAN,
@@ -56,8 +55,31 @@ module.exports = {
         type: Sequelize.DATE
       }
     });
+
+    await queryInterface.addIndex('Users', ['email'], {
+      name: "users_email_unique",
+      unique: true,
+      where: {
+        email: {
+          [Sequelize.Op.ne]: null
+        }
+      }
+    });
+
+    await queryInterface.addIndex('Users', ['username'], {
+      name: "users_username_unique",
+      unique: true,
+      where: {
+        username: {
+          [Sequelize.Op.ne]: null
+        }
+      }
+    });
   },
+
   async down(queryInterface, Sequelize) {
+    await queryInterface.removeIndex('Users', 'users_username_unique');
+    await queryInterface.removeIndex('Users', 'users_email_unique');
     await queryInterface.dropTable('Users');
   }
 };

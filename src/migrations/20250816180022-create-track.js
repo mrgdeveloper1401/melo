@@ -2,24 +2,36 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Genres', {
+    await queryInterface.createTable('Tracks', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      name: {
-        type: Sequelize.STRING,
-        allowNull: false
+      artist_id: {
+        type: Sequelize.BIGINT
       },
-      description: {
-        type: Sequelize.TEXT,
-        allowNull: false
+      album_id: {
+        type: Sequelize.BIGINT
+      },
+      title: {
+        type: Sequelize.STRING
+      },
+      song_id: {
+        type: Sequelize.BIGINT
+      },
+      release_date: {
+        type: Sequelize.DATE
       },
       is_active: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: true
+        type: Sequelize.BOOLEAN
+      },
+      play_count: {
+        type: Sequelize.INTEGER
+      },
+      genre_id: {
+        type: Sequelize.BIGINT
       },
       createdAt: {
         allowNull: false,
@@ -32,6 +44,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Genres');
+    await queryInterface.dropTable('Tracks');
   }
 };

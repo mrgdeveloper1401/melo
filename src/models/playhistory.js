@@ -20,6 +20,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'PlayHistory',
+    timestamps: false,
+    tableName: "play_history"
   });
   return PlayHistory;
 };

@@ -10,10 +10,22 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       user_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: "User",
+          key: "id"
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
       },
-      song_id: {
-        type: Sequelize.INTEGER
+      track_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Track",
+          key: "id"
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
       },
       played_at: {
         type: Sequelize.DATE
