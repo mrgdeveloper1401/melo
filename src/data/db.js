@@ -1,6 +1,6 @@
 import { config } from "dotenv";
 import {Sequelize} from "sequelize";
-import { CreateUserModel } from "../models/auth/model.js";
+import { CreateUserModel } from "../models/auth.js";
 import colors from "colors";
 
 // load env
