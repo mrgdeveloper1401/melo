@@ -21,6 +21,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'PublicNotification',
+    timestamps: true,
+    tableName: "public_notification"
   });
   return PublicNotification;
 };
