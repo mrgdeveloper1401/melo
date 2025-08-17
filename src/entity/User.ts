@@ -8,7 +8,7 @@ import {
 } from "typeorm";
 import { Profile } from "./Profile";
 
-@Entity()
+@Entity({"name": "users"})
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
