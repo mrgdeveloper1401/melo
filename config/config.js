@@ -1,4 +1,4 @@
-{
+export const configEnvironment = {
   "development": {
     "username": "postgres",
     "password": "postgres",

@@ -1,8 +1,5 @@
-'use strict';
-/** @type {import('sequelize-cli').Migration} */
-module.exports = {
-  async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('PublicNotifications', {
+export async function up(queryInterface, Sequelize) {
+  await queryInterface.createTable('PublicNotifications', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -33,9 +30,8 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       }
-    });
-  },
-  async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('PublicNotifications');
-  }
-};
+  });
+ async function down (queryInterface, Sequelize) {
+  await queryInterface.dropTable("PublicNotification");
+ }
+}

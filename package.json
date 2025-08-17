@@ -6,7 +6,8 @@
   "scripts": {
     "run-node": "node --watch src/index.js",
     "run-nodemon": "nodemon src/index.js",
-    "migrate": "npx sequelize-cli db:migrate"
+    "migrate": "node --loader @babel/register ./node_modules/.bin/sequelize db:migrate",
+    "undo-migrate": "node --loader @babel/register ./node_modules/.bin/sequelize db:migrate:undo"
   },
   "keywords": [],
   "author": "",
@@ -30,5 +31,10 @@
     "swagger-autogen": "^2.23.7",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.3",
+    "@babel/preset-env": "^7.28.3",
+    "@babel/register": "^7.28.3"
   }
 }
