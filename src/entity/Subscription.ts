@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column , CreateDateColumn, UpdateDateColumn, DeleteDateColumn, JoinColumn } from "typeorm";
 import { User } from "./User";
 import { Plan } from "./Plan";
 
@@ -8,6 +8,7 @@ export class Subscription {
   id: number;
 
   @ManyToOne(() => User)
+  @JoinColumn({name: "user_id"})
   user: User;
 
   @ManyToOne(() => Plan)

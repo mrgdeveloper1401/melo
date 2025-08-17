@@ -9,6 +9,7 @@ export class UserPayment {
   id: number;
 
   @ManyToOne(() => User)
+  @JoinColumn({name: "user_id"})
   user: User;
 
   @ManyToOne(() => Gateway)
@@ -23,6 +24,7 @@ export class UserPayment {
   price: number;
 
   @ManyToOne(() => Subscription)
+  @JoinColumn({name: "subscription_id"})
   subscription: Subscription;
 
   @Column('jsonb')

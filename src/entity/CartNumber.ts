@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Wallet } from "./Wallet";
 
 @Entity()
@@ -7,6 +7,7 @@ export class CartNumber {
   id: number;
 
   @ManyToOne(() => Wallet)
+  @JoinColumn({name: "wallet_id"})
   wallet: Wallet;
 
   @Column({ length: 20 })
