@@ -19,10 +19,10 @@ export class Profile {
   @Column({ type: 'text', nullable: true })
   bio: string;
 
-  @Column('array', { nullable: true })
+  @Column('simple-array', { nullable: true })
   jobs: string[];
 
-  @Column('array', { nullable: true })
+  @Column('simple-array', { nullable: true })
   social: string[];
 
   @OneToOne(() => User, user => user.profile, {onDelete: "RESTRICT"})
