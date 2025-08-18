@@ -1,8 +1,9 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./User";
+import { TimestampEntity } from "./Abstract";
 
 @Entity()
-export class UserNotification {
+export class UserNotification extends TimestampEntity{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -22,9 +23,9 @@ export class UserNotification {
   @Column()
   notification_type: string;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  // @CreateDateColumn()
+  // createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  // @UpdateDateColumn()
+  // updatedAt: Date;
 }

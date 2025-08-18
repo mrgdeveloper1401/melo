@@ -1,8 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, CreateDateColumn, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, JoinColumn } from "typeorm";
 import { User } from "./User";
+import { TimestampEntity } from "./Abstract";
 
 @Entity()
-export class UserLog {
+export class UserLog extends TimestampEntity{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -19,6 +20,6 @@ export class UserLog {
   @Column()
   request_path: string;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  // @CreateDateColumn()
+  // createdAt: Date;
 }

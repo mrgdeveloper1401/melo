@@ -1,9 +1,10 @@
-import { CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./User";
 import { Song } from "./Song";
+import { TimestampEntity } from "./Abstract";
 
 @Entity()
-export class FavoriteSong {
+export class FavoriteSong extends TimestampEntity{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -15,9 +16,9 @@ export class FavoriteSong {
   @JoinColumn({name: "song_id"})
   song: Song;
 
-  @CreateDateColumn()
-  added_at: Date;
+  // @CreateDateColumn()
+  // added_at: Date;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  // @CreateDateColumn()
+  // createdAt: Date;
 }

@@ -1,9 +1,10 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
 import { User } from "./User";
 import { Image } from "./Image";
+import { TimestampEntity } from "./Abstract";
 
 @Entity()
-export class Artist {
+export class Artist extends TimestampEntity{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -27,11 +28,11 @@ export class Artist {
   @Column({ length: 400 })
   bio: string;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  // @CreateDateColumn()
+  // createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  // @UpdateDateColumn()
+  // updatedAt: Date;
 
 //   @DeleteDateColumn()
 //   deletedAt: Date;

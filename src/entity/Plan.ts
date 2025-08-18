@@ -1,7 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { TimestampEntity } from "./Abstract";
 
 @Entity()
-export class Plan {
+export class Plan extends TimestampEntity{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -23,12 +24,10 @@ export class Plan {
   @Column()
   plan_type: string;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  // @CreateDateColumn()
+  // createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  // @UpdateDateColumn()
+  // updatedAt: Date;
 
-  @DeleteDateColumn()
-  deletedAt: Date;
 }

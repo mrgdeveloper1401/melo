@@ -1,10 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, UpdateDateColumn, ManyToOne, Column, CreateDateColumn, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, JoinColumn } from "typeorm";
 import { Album } from "./Album";
 import { Artist } from "./Artist";
 import { Genre } from "./Genre";
+import { TimestampEntity } from "./Abstract";
 
 @Entity()
-export class Song {
+export class Song extends TimestampEntity{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -32,10 +33,10 @@ export class Song {
   @JoinColumn({name: "genre_id"})
   genre: Genre;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  // @CreateDateColumn()
+  // createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  // @UpdateDateColumn()
+  // updatedAt: Date;
 
 }

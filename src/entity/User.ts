@@ -1,15 +1,14 @@
 import { 
   Entity, 
   PrimaryGeneratedColumn, 
-  Column, 
-  CreateDateColumn,
-  UpdateDateColumn,
+  Column,
   OneToOne
 } from "typeorm";
 import { Profile } from "./Profile";
+import { TimestampEntity } from "./Abstract";
 
 @Entity({"name": "users"})
-export class User {
+export class User extends TimestampEntity{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -25,7 +24,7 @@ export class User {
   @Column()
   password: string;
 
-  @Column({ default: false })
+  @Column({ default: false})
   is_active: boolean;
 
   @Column({ default: false })
@@ -39,12 +38,6 @@ export class User {
 
   @Column({ default: false })
   is_public: boolean;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 
   @OneToOne(() => Profile, profile => profile.user)
   profile: Profile;

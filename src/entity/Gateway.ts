@@ -1,7 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { TimestampEntity } from "./Abstract";
 
 @Entity()
-export class Gateway {
+export class Gateway extends TimestampEntity{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -16,9 +17,9 @@ export class Gateway {
   })
   is_active: boolean;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  // @CreateDateColumn()
+  // createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  // @UpdateDateColumn()
+  // updatedAt: Date;
 }

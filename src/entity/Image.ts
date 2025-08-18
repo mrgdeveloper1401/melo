@@ -1,7 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { TimestampEntity } from "./Abstract";
 
 @Entity()
-export class Image {
+export class Image extends TimestampEntity{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -23,9 +24,9 @@ export class Image {
   @Column({default: 0})
   size: number;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  // @CreateDateColumn()
+  // createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  // @UpdateDateColumn()
+  // updatedAt: Date;
 }

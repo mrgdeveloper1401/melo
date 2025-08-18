@@ -1,9 +1,10 @@
-import { CreateDateColumn, UpdateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./User";
 import { Song } from "./Song";
+import { TimestampEntity } from "./Abstract";
 
 @Entity()
-export class PlayHistory {
+export class PlayHistory extends TimestampEntity{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -18,10 +19,10 @@ export class PlayHistory {
   @CreateDateColumn()
   played_at: Date;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  // @CreateDateColumn()
+  // createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  // @UpdateDateColumn()
+  // updatedAt: Date;
 
 }

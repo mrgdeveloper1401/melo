@@ -1,7 +1,8 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { TimestampEntity } from "./Abstract";
 
 @Entity()
-export class SiteMap {
+export class SiteMap extends TimestampEntity{
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -35,12 +36,12 @@ export class SiteMap {
     )
     priority: number
 
-    @CreateDateColumn(
-        {
-            type: "timestamp",
-            update: false,
-            default: () => "CURRENT_TIMESTAMP"
-        }
-    )
-    createdAt: Date;
+    // @CreateDateColumn(
+    //     {
+    //         type: "timestamp",
+    //         update: false,
+    //         default: () => "CURRENT_TIMESTAMP"
+    //     }
+    // )
+    // createdAt: Date;
 }

@@ -1,10 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, CreateDateColumn, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, JoinColumn } from "typeorm";
 import { Subscription } from "./Subscription";
 import { User } from "./User";
 import { Gateway } from "./Gateway";
+import { TimestampEntity } from "./Abstract";
 
 @Entity()
-export class UserPayment {
+export class UserPayment extends TimestampEntity{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -30,6 +31,6 @@ export class UserPayment {
   @Column('jsonb')
   response_gateway: any;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  // @CreateDateColumn()
+  // createdAt: Date;
 }

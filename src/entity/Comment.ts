@@ -1,9 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, UpdateDateColumn, CreateDateColumn, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, JoinColumn } from "typeorm";
 import { User } from "./User";
 import { Song } from "./Song";
+import { TimestampEntity } from "./Abstract";
 
 @Entity()
-export class Comment {
+export class Comment extends TimestampEntity{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -21,10 +22,10 @@ export class Comment {
   @Column({ default: true })
   is_active: boolean;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  // @CreateDateColumn()
+  // createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  // @UpdateDateColumn()
+  // updatedAt: Date;
 
 }

@@ -1,8 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm";
 import { Plan } from "./Plan";
+import { TimestampEntity } from "./Abstract";
 
 @Entity()
-export class PlanFeature {
+export class PlanFeature extends TimestampEntity{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -13,6 +14,6 @@ export class PlanFeature {
   @JoinColumn({name: "plan_id"})
   plan: Plan;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  // @CreateDateColumn()
+  // createdAt: Date;
 }

@@ -1,8 +1,9 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Wallet } from "./Wallet";
+import { TimestampEntity } from "./Abstract";
 
 @Entity()
-export class CartNumber {
+export class CartNumber extends TimestampEntity{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -16,11 +17,11 @@ export class CartNumber {
   @Column({ default: true })
   is_active: boolean;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  // @CreateDateColumn()
+  // createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  // @UpdateDateColumn()
+  // updatedAt: Date;
 
 //   @DeleteDateColumn()
 //   deletedAt: Date;

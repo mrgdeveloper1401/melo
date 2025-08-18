@@ -1,9 +1,10 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
 import { Image } from "./Image";
 import { User } from "./User";
+import { TimestampEntity } from "./Abstract";
 
 @Entity()
-export class Album {
+export class Album extends TimestampEntity{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -27,11 +28,11 @@ export class Album {
   @JoinColumn({name: "user_id"})
   user: User;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  // @CreateDateColumn()
+  // createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  // @UpdateDateColumn()
+  // updatedAt: Date;
 
 //   @DeleteDateColumn()
 //   deletedAt: Date;

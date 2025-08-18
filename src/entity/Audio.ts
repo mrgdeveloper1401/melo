@@ -1,7 +1,8 @@
-import { Column, CreateDateColumn, UpdateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column ,Entity, PrimaryGeneratedColumn } from "typeorm";
+import { TimestampEntity } from "./Abstract";
 
 @Entity()
-export class Audio {
+export class Audio extends TimestampEntity{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -23,10 +24,10 @@ export class Audio {
   @Column({ default: true })
   is_active: boolean;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  // @CreateDateColumn()
+  // createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  // @UpdateDateColumn()
+  // updatedAt: Date;
 
 }

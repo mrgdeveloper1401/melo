@@ -1,9 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column , CreateDateColumn, UpdateDateColumn, DeleteDateColumn, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column ,JoinColumn } from "typeorm";
 import { User } from "./User";
 import { Plan } from "./Plan";
+import { TimestampEntity } from "./Abstract";
 
 @Entity()
-export class Subscription {
+export class Subscription extends TimestampEntity{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -18,12 +19,10 @@ export class Subscription {
   @Column({ default: true })
   is_active: boolean;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  // @CreateDateColumn()
+  // createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  // @UpdateDateColumn()
+  // updatedAt: Date;
 
-  @DeleteDateColumn()
-  deletedAt: Date;
 }

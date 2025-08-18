@@ -1,7 +1,8 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { TimestampEntity } from "./Abstract";
 
 @Entity()
-export class Genre {
+export class Genre extends TimestampEntity{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -14,6 +15,6 @@ export class Genre {
   @Column({ default: true })
   is_active: boolean;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  // @CreateDateColumn()
+  // createdAt: Date;
 }
