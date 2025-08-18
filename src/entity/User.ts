@@ -9,6 +9,7 @@ import {
 import { Profile } from "./Profile";
 import { TimestampEntity } from "./Abstract";
 import { UserNotification } from "./UserNotification";
+import { IsEmail } from "class-validator";
 
 @Entity({name: "users"})
 export class User extends TimestampEntity{
@@ -19,6 +20,7 @@ export class User extends TimestampEntity{
   mobile_phone: string;
 
   @Column({ unique: true, length: 64 })
+  @IsEmail({}, { message: "ایمیل معتبر نیست" })
   email: string;
 
   @Column({ unique: true, length:  64})
