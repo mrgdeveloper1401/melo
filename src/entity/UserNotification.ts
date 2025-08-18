@@ -7,7 +7,7 @@ export class UserNotification extends TimestampEntity{
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, {onDelete: "RESTRICT"})
+  @ManyToOne(() => User, (notification) => notification.user_notifications_set, {onDelete: "RESTRICT", nullable: false})
   @JoinColumn({name: "user_id"})
   user: User;
 
@@ -17,10 +17,10 @@ export class UserNotification extends TimestampEntity{
   @Column()
   body: string;
 
-  @Column()
+  @Column({nullable: true})
   notification_redirect_url: string;
 
-  @Column()
+  @Column({nullable: true})
   notification_type: string;
 
   // @CreateDateColumn()

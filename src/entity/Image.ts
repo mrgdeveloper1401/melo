@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { TimestampEntity } from "./Abstract";
+import { Profile } from "./Profile";
 
 @Entity()
 export class Image extends TimestampEntity{
@@ -24,9 +25,21 @@ export class Image extends TimestampEntity{
   @Column({default: 0})
   size: number;
 
-  // @CreateDateColumn()
-  // createdAt: Date;
+  @OneToMany(
+    () => Profile,
+    (profile) => profile.profile_image
+  )
+  profile_image_set: Profile[];
 
-  // @UpdateDateColumn()
-  // updatedAt: Date;
+  @OneToMany(
+    () => Profile,
+    (profile) => profile.banner_image
+  )
+  profile_banner_image_set: Profile[];
+
+  @OneToMany(
+    () => Profile,
+    (profile) => profile.banner_galery_image
+  )
+  profile_banner_galery_image_set: Profile[];
 }

@@ -3,10 +3,12 @@ import {
   PrimaryGeneratedColumn, 
   Column,
   OneToOne,
-  Index
+  Index,
+  OneToMany
 } from "typeorm";
 import { Profile } from "./Profile";
 import { TimestampEntity } from "./Abstract";
+import { UserNotification } from "./UserNotification";
 
 @Entity({name: "users"})
 export class User extends TimestampEntity{
@@ -42,4 +44,10 @@ export class User extends TimestampEntity{
 
   @OneToOne(() => Profile, profile => profile.user)
   profile: Profile;
+
+  @OneToMany(
+    () => UserNotification,
+    (user) => user.user
+  )
+  user_notifications_set: UserNotification[];
 }
