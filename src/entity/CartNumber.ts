@@ -6,7 +6,7 @@ export class CartNumber {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Wallet)
+  @ManyToOne(() => Wallet, {onDelete: "RESTRICT"})
   @JoinColumn({name: "wallet_id"})
   wallet: Wallet;
 

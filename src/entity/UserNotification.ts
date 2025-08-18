@@ -6,7 +6,7 @@ export class UserNotification {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, {onDelete: "RESTRICT"})
   @JoinColumn({name: "user_id"})
   user: User;
 

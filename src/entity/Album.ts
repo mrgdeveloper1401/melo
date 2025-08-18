@@ -16,14 +16,14 @@ export class Album {
   @Column({ default: true })
   is_active: boolean;
 
-  @ManyToOne(() => Image)
+  @ManyToOne(() => Image, {onDelete: "RESTRICT"})
   @JoinColumn({name: "cover_image_id"})
   cover_image: Image;
 
   @Column()
   release_date: Date;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, {onDelete: "RESTRICT"})
   @JoinColumn({name: "user_id"})
   user: User;
 

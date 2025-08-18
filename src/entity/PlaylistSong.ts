@@ -7,11 +7,11 @@ export class PlaylistSong {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Playlist)
+  @ManyToOne(() => Playlist, {onDelete: "RESTRICT"})
   @JoinColumn({name: "playlist_id"})
   playlist: Playlist;
 
-  @ManyToOne(() => Song)
+  @ManyToOne(() => Song, {onDelete: "RESTRICT"})
   @JoinColumn({name: "song_id"})
   song: Song;
 

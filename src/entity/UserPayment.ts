@@ -8,7 +8,7 @@ export class UserPayment {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, {onDelete: "RESTRICT"})
   @JoinColumn({name: "user_id"})
   user: User;
 
@@ -23,7 +23,7 @@ export class UserPayment {
   @Column()
   price: number;
 
-  @ManyToOne(() => Subscription)
+  @ManyToOne(() => Subscription, {onDelete: "RESTRICT"})
   @JoinColumn({name: "subscription_id"})
   subscription: Subscription;
 

@@ -10,7 +10,7 @@ export class Artist {
   @Column({ length: 255 })
   name: string;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, {onDelete: "RESTRICT"})
   @JoinColumn({name: "user_id"})
   user: User;
 
@@ -20,7 +20,7 @@ export class Artist {
   @Column()
   monthly_listeners: number;
 
-  @ManyToOne(() => Image)
+  @ManyToOne(() => Image, {onDelete: "RESTRICT"})
   @JoinColumn({name: "image_id"})
   cover_image: Image;
 

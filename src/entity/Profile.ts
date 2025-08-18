@@ -19,25 +19,25 @@ export class Profile {
   @Column({ type: 'text', nullable: true })
   bio: string;
 
-  @Column('simple-array', { nullable: true })
+  @Column('array', { nullable: true })
   jobs: string[];
 
-  @Column('simple-array', { nullable: true })
+  @Column('array', { nullable: true })
   social: string[];
 
-  @OneToOne(() => User, user => user.profile)
+  @OneToOne(() => User, user => user.profile, {onDelete: "RESTRICT"})
   @JoinColumn()
   user: User;
 
-  @ManyToOne(() => Image, { nullable: true })
+  @ManyToOne(() => Image, { nullable: true , onDelete: "RESTRICT"})
   @JoinColumn({ name: 'profile_image_id' })
   profile_image: Image;
 
-  @ManyToOne(() => Image, { nullable: true })
+  @ManyToOne(() => Image, { nullable: true , onDelete: "RESTRICT"})
   @JoinColumn({ name: 'banner_image_id' })
   banner_image: Image;
 
-  @ManyToOne(() => Image, { nullable: true })
+  @ManyToOne(() => Image, { nullable: true ,onDelete: "RESTRICT"})
   @JoinColumn({ name: 'banner_galery_image_id' })
   banner_galery_image: Image;
 }

@@ -8,11 +8,11 @@ export class Song {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Artist)
+  @ManyToOne(() => Artist, {onDelete: "RESTRICT"})
   @JoinColumn({name: "artist_id"})
   artist: Artist;
 
-  @ManyToOne(() => Album)
+  @ManyToOne(() => Album, {onDelete: "RESTRICT"})
   @JoinColumn({name: "album_id"})
   album: Album;
 
@@ -28,7 +28,7 @@ export class Song {
   @Column()
   play_count: number;
 
-  @ManyToOne(() => Genre)
+  @ManyToOne(() => Genre, {onDelete: "RESTRICT"})
   @JoinColumn({name: "genre_id"})
   genre: Genre;
 

@@ -7,11 +7,11 @@ export class PlayHistory {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, {onDelete: "RESTRICT"})
   @JoinColumn({name: "user_id"})
   user: User;
 
-  @ManyToOne(() => Song)
+  @ManyToOne(() => Song, {onDelete: "RESTRICT"})
   @JoinColumn({name: "song_id"})
   song: Song;
 

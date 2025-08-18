@@ -9,7 +9,7 @@ export class PlanFeature {
   @Column()
   feature_name: string;
 
-  @ManyToOne(() => Plan)
+  @ManyToOne(() => Plan, {onDelete: "RESTRICT"})
   @JoinColumn({name: "plan_id"})
   plan: Plan;
 

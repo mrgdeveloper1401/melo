@@ -7,11 +7,11 @@ export class Subscription {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, {onDelete: "RESTRICT"})
   @JoinColumn({name: "user_id"})
   user: User;
 
-  @ManyToOne(() => Plan)
+  @ManyToOne(() => Plan, {onDelete: "RESTRICT"})
   @JoinColumn({name: "plan_id"})
   plan: Plan;
 

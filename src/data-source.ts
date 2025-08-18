@@ -23,6 +23,7 @@ import { PlanFeature } from "./entity/PlanFuture";
 import { UserPayment } from "./entity/UserPayment";
 import { UserLog } from "./entity/UserLog";
 import { Song } from "./entity/Song";
+import { Gateway } from "./entity/Gateway";
 
 
 export const AppDataSource = new DataSource({
@@ -57,7 +58,8 @@ export const AppDataSource = new DataSource({
         Plan,
         PlanFeature,
         UserPayment,
-        UserLog
+        UserLog,
+        Gateway
     ],
     migrations: [],
     subscribers: [],
