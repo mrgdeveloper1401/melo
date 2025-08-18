@@ -22,13 +22,15 @@ userAuthRouter.post(
                     {
                         "message": "invalid",
                         "success": "false",
-                        "error": error
+                        "error": error[0].constraints
                     }
                 );
             }
 
             await createUser.save();
-            return res.status(200).json(createUser);
+            const {username: userUsername, email: userEmail} = createUser;
+            const responseData = {username: userUsername, email: userEmail}
+            return res.status(200).json(responseData);
         }
         catch(error){
             res.status(400);
