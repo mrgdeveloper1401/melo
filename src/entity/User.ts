@@ -12,16 +12,16 @@ export class User extends TimestampEntity{
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @Column({ unique: true, length: 15})
   mobile_phone: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, length: 64 })
   email: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, length:  64})
   username: string;
 
-  @Column()
+  @Column({length: 64})
   password: string;
 
   @Column({ default: false})
