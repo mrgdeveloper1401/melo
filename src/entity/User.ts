@@ -47,7 +47,7 @@ export class User extends TimestampEntity{
 
   @OneToMany(
     () => UserNotification,
-    (user) => user.user
+    (notification) => notification.user
   )
   user_notifications_set: UserNotification[];
 }
