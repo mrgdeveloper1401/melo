@@ -26,7 +26,7 @@ export class User extends TimestampEntity{
   @Column({ unique: true, length:  64})
   username: string;
 
-  @Column({length: 64})
+  @Column({length: 128})
   password: string;
 
   @Column({ default: true})

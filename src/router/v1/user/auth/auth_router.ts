@@ -33,14 +33,14 @@ userAuthRouter.post(
                 where: {username: username}
             }
         );
-        const checkEmail = await user.findOne(
+        if (checkUsername) {
+            return res.status(400).json({message: "username already exists"})
+        }
+                const checkEmail = await user.findOne(
             {
                 where: {email: email}
             }
         )
-        if (checkUsername) {
-            return res.status(400).json({message: "username already exists"})
-        }
         if (checkEmail) {
             return res.status(400).json({message: "email is already exists"})
         }
