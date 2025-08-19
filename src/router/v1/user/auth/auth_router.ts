@@ -12,57 +12,62 @@ const userAuthRouter = express.Router()
 userAuthRouter.post(
     "/signup/",
     async (req: Request, res: Response) => {
-        const {username, password, email} = req.body
+        try {
+            const {username, password, email} = req.body
         
-        // check validate data
-        if (!username) {
-            return res.status(400).json({message: "username is required"})
-        }
-        if (!password){
-            return res.status(400).json({message: "password is required"})
-        }
-        if (!email) {
-            return res.status(400).json({message: "email is required"})
-        }
-
-        const user = AppDataSource.getRepository(User)
-
-        // check user exits
-        const checkUsername = await user.findOne(
-            {
-                where: {username: username}
+            // check validate data
+            if (!username) {
+                return res.status(400).json({message: "username is required"})
             }
-        );
-        if (checkUsername) {
-            return res.status(400).json({message: "username already exists"})
-        }
-                const checkEmail = await user.findOne(
-            {
-                where: {email: email}
+            if (!password){
+                return res.status(400).json({message: "password is required"})
             }
-        )
-        if (checkEmail) {
-            return res.status(400).json({message: "email is already exists"})
+            if (!email) {
+                return res.status(400).json({message: "email is required"})
+            }
+
+            const user = AppDataSource.getRepository(User)
+
+            // check user exits
+            const checkUsername = await user.findOne(
+                {
+                    where: {username: username}
+                }
+            );
+            if (checkUsername) {
+                return res.status(400).json({message: "username already exists"})
+            }
+                    const checkEmail = await user.findOne(
+                {
+                    where: {email: email}
+                }
+            )
+            if (checkEmail) {
+                return res.status(400).json({message: "email is already exists"})
+            }
+
+            // create user
+            const hashPassword = funcCreateHashPassword(password);
+            const createUser = new User();
+            createUser.username = username;
+            createUser.email = email;
+            createUser.password = hashPassword;
+            await createUser.save()
+
+            // create and return token
+            const token  = funcCreateToken(createUser.id)
+            return res.status(201).json(
+                {
+                    "status": "success",
+                    token: token,
+                    isAdmin: createUser.is_staff
+                }
+            )
+        }catch (error) {
+            return res.status(500).json({message: "server error"})
         }
 
-        // create user
-        const hashPassword = funcCreateHashPassword(password);
-        const createUser = new User();
-        createUser.username = username;
-        createUser.email = email;
-        createUser.password = hashPassword;
-        await createUser.save()
-
-        // create and return token
-        const token  = funcCreateToken(createUser.id)
-        return res.status(201).json(
-            {
-                "status": "success",
-                token: token,
-                isAdmin: createUser.is_staff
-            }
-        )
-    }    
+    }
 )
 
 userAuthRouter.post(
