@@ -1,10 +1,11 @@
 import express from "express";
 import { Request, Response } from "express";
 import { User } from "../../../../entity/User";
-import { validate } from "class-validator";
 import { AppDataSource } from "../../../../data-source";
 import { funcCreateHashPassword } from "../../../../utils/createHashPassword";
 import { funcCreateToken } from "../../../../utils/createJwtToken";
+import bcrypt from "bcrypt";
+import { getRepository } from "typeorm";
 
 const userAuthRouter = express.Router()
 
@@ -115,12 +116,80 @@ userAuthRouter.post(
     }
 )
 
-// userAuthRouter.post(
-//     "/login_by_email/",
-//     async (req: Request, res: Response) => {
+userAuthRouter.post(
+    "/login_by_email/",
+    async (req: Request, res: Response) => {
+        try {
+            const {email, password} = req.body;
+    
+            // check data
+            if (!email) {
+                return res.status(400).json({message: "email is required"});
+            }
+            if (!password) {
+                return res.status(400).json({message: "password is required"});
+            }
 
-//     }
-// )
+            const userRepository = AppDataSource.getRepository(User);
+  
+            // get user
+            const getUser = await userRepository.findOne(
+                {
+                    where: {email: email}
+                }
+            );
+
+            // check user
+            if (!getUser) {
+                return res.status(404).json(
+                    {
+                        status: false,
+                        message: "invalid email or password"
+                    }
+                );
+            }
+
+            // compare password
+            const isValidPassword = bcrypt.compare(password, getUser.password);
+            const hash = funcCreateHashPassword(password)
+            if (!isValidPassword) {
+                return res.status(404).json(
+                    {
+                        status: false,
+                        message: "invalid email or password",
+                        hash: hash
+                    }
+                );
+            }
+
+            // check user is_active
+            if (getUser.is_active === false) {
+                return res.status(403).json(
+                    {
+                        status: false,
+                        message: "your account is ben!"
+                    }
+                )
+            }
+
+            // generate and return token
+            const token = funcCreateToken(getUser.id);
+            return res.status(200).json({
+                status: true,
+                token,
+                isAdmin: getUser.is_staff,
+            });
+
+        } catch (error) {
+            return res.status(500).json(
+                {
+                    status: false,
+                    message: "server error"
+                }
+            )
+        }
+    }
+)
 
 // userAuthRouter.post(
 //     "/request_login_by_otp_phone/",

@@ -22,7 +22,9 @@ AppDataSource.initialize().then(() => {
             res.send("rest api music");
         }
     )
-    app.use(userAuthRouter)
+    app.use(
+        "/v1/auth/user/", userAuthRouter
+    )
 
     // listen
     app.listen(port)
