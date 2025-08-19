@@ -83,7 +83,16 @@ userAuthRouter.post(
             if (!user) {
                 return res.status(400).json({message: "username or password is invalid"})
             }
-
+            
+            // check user is_active
+            if (user.is_active === false) {
+                return res.status(400).json(
+                    {
+                        message: "your account is bend!",
+                        status: false
+                    }
+                )
+            }
             // create token
             const token = funcCreateToken(user.id)
 
