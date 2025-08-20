@@ -19,9 +19,12 @@ export const notAuthenticateJwt = (
     next: NextFunction
 ) => {
     const authHeader = req.headers.authorization;
-    const checkOne = authHeader === null || authHeader === undefined;
-    const checkTwo = authHeader || authHeader.startsWith("Bearer ");
+    if (!authHeader) {
+        return next();
+    }
+    const checkOne = authHeader === null;
+    const checkTwo = (authHeader || authHeader.startsWith("Bearer "));
     if (checkOne || checkTwo) {
-        return res.status(400).json({message: "Authentication credentials were provided."})
+            return res.status(400).json({message: "Authentication credentials were provided."})
     }
 }
