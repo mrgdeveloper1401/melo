@@ -35,3 +35,19 @@ export const connectRedis = async () => {
         await redisClient.connect();
     }
 };
+
+const disconnectRedis = async () => {
+    if (redisClient.isOpen) {
+        await redisClient.quit();
+    }
+}
+
+export const VerifyOtpRedis = async (code: string, userIp: string) => {
+    if (isRedisConnected === false) {
+        await connectRedis();
+    }
+    const RedisKey = `otp_${code}_${userIp}`;
+    const check = await redisClient.get(RedisKey)
+    await disconnectRedis();
+    return check;
+}

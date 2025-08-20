@@ -8,6 +8,7 @@ import bcrypt from "bcrypt";
 import { getRepository } from "typeorm";
 import { notAuthenticateJwt } from "../../../../utils/authenticate";
 import { sendOtp } from "../../../../utils/sendOtpSmsIr";
+import { redisClient, VerifyOtpRedis } from "../../../../utils/connectRedis";
 
 const userAuthRouter = express.Router()
 
@@ -261,12 +262,67 @@ userAuthRouter.post(
 // verify_login_by_otp_phone
 userAuthRouter.post(
     "/verify_otp_phone/",
+    notAuthenticateJwt,
     async (req: Request, res: Response) => {
-        return res.status(200).json(
-            {
-                user_ip: req.headers
+        try {
+            // check data in body
+            if (!req.body) {
+                return res.status(400).json({message: "request body must be set"});
             }
-        )
+
+            // body
+            const { code, mobile_phone } = req.body;
+
+            // validate data
+            if (!code) {
+                return res.status(400).json({message: "code is required"});
+            }
+            if (!mobile_phone) {
+                return res.status(400).json({message: "mobile phone is required"});
+            }
+
+            // check otp code
+            const checkOtpCode = await VerifyOtpRedis(code, req.ip)
+            console.log(checkOtpCode);
+            if (checkOtpCode === null) {
+                return res.status(404).json(
+                    {
+                        status: false,
+                        message: "code is invalid"
+                    }
+                )
+            }
+            
+            // get user and return token
+            const userRepository = AppDataSource.getRepository(User);
+            const getUser = await userRepository.findOne({where: {mobile_phone: mobile_phone}})
+            if (!getUser) {
+                return res.status(404).json(
+                    {
+                        status: false,
+                        message: "user not found"
+                    }
+                );
+            }
+            if (getUser.is_active === false) {
+                return res.status(403).json(
+                    {
+                        status: false,
+                        message: "your account is ben!"
+                    }
+                );
+            }
+            const token = funcCreateToken(getUser.id);
+            return res.status(200).json(
+                {
+                    status: "success",
+                    token: token,
+                    isAdmin: getUser.is_staff
+                }
+            )
+        } catch (error) {
+            return res.status(500).json({message: "server error"})   
+        }
     }
 )
 
