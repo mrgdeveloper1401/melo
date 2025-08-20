@@ -3,7 +3,7 @@ import { blue } from "colors";
 import express, { Request, Response } from 'express';
 import dotenv from "dotenv";
 import { userAuthRouter } from "./router/v1/user/auth/auth_router";
-
+import bodyParser from "body-parser";
 
 dotenv.config()
 
@@ -13,7 +13,8 @@ AppDataSource.initialize().then(() => {
 
     // express
     const app = express()
-    app.use(express.json())
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({ extended: true }));
     const port = process.env.PORT;
 
     // router

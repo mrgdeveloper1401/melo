@@ -7,6 +7,7 @@ import { funcCreateToken } from "../../../../utils/createJwtToken";
 import bcrypt from "bcrypt";
 import { getRepository } from "typeorm";
 import { notAuthenticateJwt } from "../../../../utils/authenticate";
+import { sendOtp } from "../../../../utils/sendOtpSmsIr";
 
 const userAuthRouter = express.Router()
 
@@ -16,6 +17,12 @@ userAuthRouter.post(
     notAuthenticateJwt,
     async (req: Request, res: Response) => {
         try {
+            // check request body
+            if (!req.body) {
+                return res.status(400).json({message: "request body is required"})
+            }
+            
+            // request body
             const {username, password, email} = req.body
         
             // check validate data
@@ -79,6 +86,11 @@ userAuthRouter.post(
     notAuthenticateJwt,
     async (req: Request, res: Response) => {
         try {
+            // request body
+            if (!req.body) {
+                return res.status(400).json({message: "request body is required"})
+            }
+
             const { username, password } = req.body;
             if (!username) {
                 return res.status(400).json({message: "username is required"});
@@ -126,6 +138,11 @@ userAuthRouter.post(
     notAuthenticateJwt,
     async (req: Request, res: Response) => {
         try {
+            // request body
+            if (!req.body) {
+                return res.status(400).json({message: "request body is required"})
+            }
+
             const {email, password} = req.body;
     
             // check data
@@ -197,37 +214,61 @@ userAuthRouter.post(
     }
 )
 
+// request_login_by_otp_phone
 userAuthRouter.post(
-    "/request_login_by_otp_phone/",
+    "/request_otp_phone/",
     notAuthenticateJwt,
     async (req: Request, res: Response) => {
-        const { mobile_phone } = req.body;
-        
-        // validate data
-        if (!mobile_phone) {
-            return res.status(400).json({message: "mobile_phone is required!"})
-        }
+        try {
+            // check request body
+            if (!req.body) {
+                return res.status(400).json({message: "request body is required"})
+            }
 
-        // check user dose exits
-        const userRepository = AppDataSource.getRepository(User);
-        const getUser = await userRepository.findOne({where: {mobile_phone: mobile_phone}})
-        if (!getUser) {
-            return res.status(404).json({message: "user not found!"})
-        }
-        if (getUser.is_active === false) {
-            return res.status(403).json({message: "your account is ben!!"})
+            const { mobile_phone } = req.body;
+            // validate data
+            if (!mobile_phone || !req.body) {
+                return res.status(400).json({message: "mobile_phone is required!"})
+            }
+
+            // check user dose exits
+            const userRepository = AppDataSource.getRepository(User);
+            const getUser = await userRepository.findOne({where: {mobile_phone: mobile_phone}})
+            if (!getUser) {
+                return res.status(404).json({message: "user not found!"})
+            }
+            if (getUser.is_active === false) {
+                return res.status(403).json({message: "your account is ben!!"})
+            }
+
+            // generate otp code and send otp code
+            await sendOtp(mobile_phone, req)
+            const text = "code is send";
+            return res.status(200).json(
+                {
+                    status: "success",
+                    message: text
+                }
+            );
+        } catch (error) {
+            return res.status(500).json({message: "server error", error})
         }
 
         // create and send otp code
     }
 )
 
-// userAuthRouter.post(
-//     "/verify_login_by_otp_phone/",
-//     async (req: Request, res: Response) => {
-
-//     }
-// )
+// verify_login_by_otp_phone
+userAuthRouter.post(
+    "/verify_otp_phone/",
+    async (req: Request, res: Response) => {
+        return res.status(200).json(
+            {
+                user_ip: req.headers
+            }
+        )
+    }
+)
 
 
 // userAuthRouter.post(
