@@ -6,12 +6,14 @@ import { funcCreateHashPassword } from "../../../../utils/createHashPassword";
 import { funcCreateToken } from "../../../../utils/createJwtToken";
 import bcrypt from "bcrypt";
 import { getRepository } from "typeorm";
+import { notAuthenticateJwt } from "../../../../utils/authenticate";
 
 const userAuthRouter = express.Router()
 
 // create user
 userAuthRouter.post(
     "/signup/",
+    notAuthenticateJwt,
     async (req: Request, res: Response) => {
         try {
             const {username, password, email} = req.body
@@ -74,6 +76,7 @@ userAuthRouter.post(
 // login_by_username
 userAuthRouter.post(
     "/login_by_username/",
+    notAuthenticateJwt,
     async (req: Request, res: Response) => {
         try {
             const { username, password } = req.body;
@@ -120,6 +123,7 @@ userAuthRouter.post(
 // login_by_email
 userAuthRouter.post(
     "/login_by_email/",
+    notAuthenticateJwt,
     async (req: Request, res: Response) => {
         try {
             const {email, password} = req.body;
@@ -195,6 +199,7 @@ userAuthRouter.post(
 
 userAuthRouter.post(
     "/request_login_by_otp_phone/",
+    notAuthenticateJwt,
     async (req: Request, res: Response) => {
         const { mobile_phone } = req.body;
         
