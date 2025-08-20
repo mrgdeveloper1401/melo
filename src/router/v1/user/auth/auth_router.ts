@@ -71,6 +71,7 @@ userAuthRouter.post(
     }
 )
 
+// login_by_username
 userAuthRouter.post(
     "/login_by_username/",
     async (req: Request, res: Response) => {
@@ -116,6 +117,7 @@ userAuthRouter.post(
     }
 )
 
+// login_by_email
 userAuthRouter.post(
     "/login_by_email/",
     async (req: Request, res: Response) => {
@@ -191,12 +193,29 @@ userAuthRouter.post(
     }
 )
 
-// userAuthRouter.post(
-//     "/request_login_by_otp_phone/",
-//     async (req: Request, res: Response) => {
+userAuthRouter.post(
+    "/request_login_by_otp_phone/",
+    async (req: Request, res: Response) => {
+        const { mobile_phone } = req.body;
+        
+        // validate data
+        if (!mobile_phone) {
+            return res.status(400).json({message: "mobile_phone is required!"})
+        }
 
-//     }
-// )
+        // check user dose exits
+        const userRepository = AppDataSource.getRepository(User);
+        const getUser = await userRepository.findOne({where: {mobile_phone: mobile_phone}})
+        if (!getUser) {
+            return res.status(404).json({message: "user not found!"})
+        }
+        if (getUser.is_active === false) {
+            return res.status(403).json({message: "your account is ben!!"})
+        }
+
+        // create and send otp code
+    }
+)
 
 // userAuthRouter.post(
 //     "/verify_login_by_otp_phone/",
