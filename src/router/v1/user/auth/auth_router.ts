@@ -292,7 +292,7 @@ userAuthRouter.post(
                     }
                 )
             }
-            
+
             // get user and return token
             const userRepository = AppDataSource.getRepository(User);
             const getUser = await userRepository.findOne({where: {mobile_phone: mobile_phone}})
