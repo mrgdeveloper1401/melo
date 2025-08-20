@@ -49,7 +49,7 @@ export const sendOtp = async (phoneNumber: string, req: Request) => {
         return response.data
 
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         // console.log(error.response.data); // { data: null, status: 113, message: 'قالب یافت نشد' }
         return error.response
     }

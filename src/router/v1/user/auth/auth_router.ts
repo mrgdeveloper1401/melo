@@ -283,7 +283,7 @@ userAuthRouter.post(
 
             // check otp code
             const checkOtpCode = await VerifyOtpRedis(code, req.ip)
-            console.log(checkOtpCode);
+            // console.log(checkOtpCode);
             if (checkOtpCode === null) {
                 return res.status(404).json(
                     {

@@ -7,5 +7,5 @@ const generateRandomSecret = (length: number = 32) => {
     return result;
 }
 
-const jwtSecret = generateRandomSecret()
-console.log('Generated JWT Secret:', jwtSecret);
+// const jwtSecret = generateRandomSecret()
+// console.log('Generated JWT Secret:', jwtSecret);
