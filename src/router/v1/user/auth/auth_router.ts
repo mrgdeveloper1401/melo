@@ -102,12 +102,13 @@ userAuthRouter.post(
             }
             
             const userRepository = AppDataSource.getRepository(User);
-            const hashPassword = funcCreateHashPassword(password)
-            const user = await userRepository.findOne({where: {username: username, password: hashPassword}}) ;
-            if (!user) {
+            const user = await userRepository.findOne({where: {username: username}}) ;
+            const isMatch = await bcrypt.compare(password, user.password);
+
+            if (!user && !isMatch) {
                 return res.status(400).json({message: "username or password is invalid"})
             }
-            
+
             // check user is_active
             if (user.is_active === false) {
                 return res.status(400).json(
@@ -128,7 +129,13 @@ userAuthRouter.post(
                 }
             )
         } catch (error) {
-            return res.status(500).json({message: "server error", status: "false"})
+            return res.status(500).json(
+                {
+                    message: "server error", 
+                    status: "false",
+                    error: error
+                }
+            )
         }
 
     }
@@ -365,50 +372,6 @@ userAuthRouter.post(
     }
 )
 
-// userAuthRouter.post(
-//     "/verify_otp_email/",
-//     async (req: Request, res: Response) => {
-
-//     }
-// )
-
-
-// userAuthRouter.post(
-//     "/request_reset_password_by_phone/",
-//         async (req: Request, res: Response) => {
-
-//     }
-// )
-
-// userAuthRouter.post(
-//     "/verify_reset_password_by_phone/",
-//         async (req: Request, res: Response) => {
-
-//     }
-// )
-
-// userAuthRouter.post(
-//     "/request_reset_password_by_email/",
-//         async (req: Request, res: Response) => {
-
-//     }
-// )
-
-// userAuthRouter.post(
-//     "/verify_reset_password_by_email/",
-//         async (req: Request, res: Response) => {
-
-//     }
-// )
-
-// userAuthRouter.get(
-//     "/oauth/",
-//     notAuthenticateJwt,
-//     async (req: Request, res: Response) => {
-        
-//     }
-// )
-
 // // user
 userAuthRouter.get(
     "/user/",
@@ -509,6 +472,7 @@ userAuthRouter.get(
     }
 )
 
+// update user
 userAuthRouter.patch(
     "/user/:id/",
     authenticateJWT,
@@ -552,10 +516,11 @@ userAuthRouter.patch(
 
                 // if request body is None
                 if (req.body == null) {
+                    const { password, is_staff, is_superuser, is_active, ...userProfile } = user;
                     return res.status(200).json(
                         {
                             status: "success",
-                            data: user
+                            data: userProfile
                         }
                     )
                 }
@@ -567,7 +532,8 @@ userAuthRouter.patch(
                     "email",
                     "is_public",
                     "is_artist"
-                ]
+                ]               
+
                 updateField.forEach(field => {
                     if (req.body[field] !== undefined) {
                         (user as any)[field] = req.body[field];
@@ -594,12 +560,12 @@ userAuthRouter.patch(
                 // save the update user
                 const updateUser = await userRepository.save(user)
                 // Remove sensitive fields from response
-                const { password, is_staff, is_superuser, is_active, ...userProfile } = updateUser;
-    
+                const { password, is_staff, is_superuser, is_active, ...updateAuthUser } = updateUser;
+
                 return res.status(200).json(
                     {
                         status: "success",
-                        data: userProfile
+                        data: updateAuthUser
                     }
                 );
             } catch (error) {
