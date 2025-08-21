@@ -5,10 +5,10 @@ import { AppDataSource } from "../../../../data-source";
 import { funcCreateHashPassword } from "../../../../utils/createHashPassword";
 import { funcCreateToken } from "../../../../utils/createJwtToken";
 import bcrypt from "bcrypt";
-import { getRepository } from "typeorm";
-import { notAuthenticateJwt } from "../../../../utils/authenticate";
+import { authenticateJWT, notAuthenticateJwt } from "../../../../utils/authenticate";
 import { sendOtp } from "../../../../utils/sendOtpSmsIr";
 import { redisClient, VerifyOtpRedis } from "../../../../utils/connectRedis";
+import jwt from "jsonwebtoken";
 
 const userAuthRouter = express.Router()
 
@@ -326,27 +326,51 @@ userAuthRouter.post(
     }
 )
 
+// send request otp into email
+userAuthRouter.post(
+    "/request_login_by_otp_email/",
+    notAuthenticateJwt,
+    async (req: Request, res: Response) => {
+        // validate request body
+        if (!req.body) {
+            return res.status(400).json({message: "request body must be set"});
+        }
+
+        // validate data
+        const { email } = req.body;
+        if (!req.body) {
+            return res.status(400).json({message: "email is required"});
+        }
+
+        const userRepository = AppDataSource.getRepository(User);
+        const getUser = await userRepository.findOne({where: {email: email}});
+
+        if (!getUser) {
+            return res.status(404).json(
+                {
+                    message: "user not found",
+                    status: false
+                }
+            );
+        }
+        if (getUser.is_active === false) {
+            return res.status(403).json(
+                {
+                    message: "your account is ben!",
+                    status: false
+                }
+            );
+        }
+    }
+)
 
 // userAuthRouter.post(
-//     "/request_login_by_otp_email/",
+//     "/verify_otp_email/",
 //     async (req: Request, res: Response) => {
 
 //     }
 // )
 
-// userAuthRouter.post(
-//     "/verify_login_by_otp_email/",
-//     async (req: Request, res: Response) => {
-
-//     }
-// )
-
-// userAuthRouter.post(
-//     "/request_login_by_otp_phone/",
-//     async (req: Request, res: Response) => {
-
-//     }
-// )
 
 // userAuthRouter.post(
 //     "/request_reset_password_by_phone/",
@@ -376,23 +400,60 @@ userAuthRouter.post(
 //     }
 // )
 
-
-// // profile
 // userAuthRouter.get(
-//     "/profile/",
+//     "/oauth/",
+//     notAuthenticateJwt,
 //     async (req: Request, res: Response) => {
-//         try {
-//             // get and  token
-//             const token = req.headers.authorization?.split(" ")[1];
-//             if (!token) {
-//                 return res.status(401).json({message: "authentication not found"})
-//             }
-            
-//         } catch (error) {
-//             return error
-//         }
+        
 //     }
 // )
+
+// // profile
+userAuthRouter.get(
+    "/profile/",
+    authenticateJWT,
+    async (req: Request, res: Response) => {
+        try {
+            const user = (req as any).user;
+            const userId = user.userId;
+            
+            // get and validate user
+            const userRepository = AppDataSource.getRepository(User);
+            const getUser = await userRepository.findOne({where: {id: userId}})
+            if (!getUser) {
+                return res.status(404).json(
+                    {
+                        status: false,
+                        message: "user not found"
+                    }
+                );
+            }
+            if (getUser.is_active === false) {
+                return res.status(403).json(
+                    {
+                        status: false,
+                        message: "your account is ben!"
+                    }
+                );
+            }
+
+            const { password, is_staff, is_superuser, is_active, ...userProfile } = getUser;
+            return res.status(200).json(
+                {
+                    status: "success",
+                    data: userProfile 
+                }
+            );
+        } catch (error) {
+            return res.status(500).json(
+                {
+                    status: false,
+                    error: error
+                }
+            );
+        }
+    }
+)
 
 // userAuthRouter.put(
 //     "/profile/:user_id/",
