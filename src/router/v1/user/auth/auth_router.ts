@@ -9,6 +9,7 @@ import { authenticateJWT, notAuthenticateJwt } from "../../../../utils/authentic
 import { sendOtp } from "../../../../utils/sendOtpSmsIr";
 import { redisClient, VerifyOtpRedis } from "../../../../utils/connectRedis";
 import jwt from "jsonwebtoken";
+import { validate } from "class-validator";
 
 const userAuthRouter = express.Router()
 
@@ -508,10 +509,102 @@ userAuthRouter.get(
     }
 )
 
-userAuthRouter.put(
-    "/profile/:id/",
+userAuthRouter.patch(
+    "/user/:id/",
+    authenticateJWT,
         async (req: Request, res: Response) => {
-            
+            try {
+                const { id } = req.params;
+                const userRepository = AppDataSource.getRepository(User);
+                
+                // get user query
+                const user = await userRepository.findOne(
+                    {
+                        where: {id: Number(id)}
+                    }
+                );
+
+                // check user
+                if (!user) {
+                    return res.status(404).json(
+                        {
+                            status: false,
+                            message: "user not found"
+                        }
+                    );
+                }
+                if (user.is_active === false) {
+                    return res.status(403).json(
+                        {
+                            status: false,
+                            message: "your account is ben!"
+                        }
+                    );
+                }
+                if (user.id !== (req as any).user.userId) {
+                    return res.status(403).json(
+                        {
+                            status: false,
+                            message: "you do not have permission "
+                        }
+                    );
+                }
+
+                // if request body is None
+                if (req.body == null) {
+                    return res.status(200).json(
+                        {
+                            status: "success",
+                            data: user
+                        }
+                    )
+                }
+
+                // update field
+                const updateField = [
+                    "mobile_phone",
+                    "username",
+                    "email",
+                    "is_public",
+                    "is_artist"
+                ]
+                updateField.forEach(field => {
+                    if (req.body[field] !== undefined) {
+                        (user as any)[field] = req.body[field];
+                    }
+                });
+                const error = await validate(user);
+                if (error.length > 0) {
+                    return res.status(400).json(
+                        {
+                            status: false,
+                            message: "Validation Field",
+                            error: error.map(
+                                err => (
+                                    {
+                                        field: Object.keys(err.constraints || {}),
+                                        message: Object.values(err.constraints || {})
+                                    }
+                                )
+                            )
+                        }
+                    );
+                }
+
+                // save the update user
+                const updateUser = await userRepository.save(user)
+                // Remove sensitive fields from response
+                const { password, is_staff, is_superuser, is_active, ...userProfile } = updateUser;
+    
+                return res.status(200).json(
+                    {
+                        status: "success",
+                        data: userProfile
+                    }
+                );
+            } catch (error) {
+                
+            }
     }
 )
 
