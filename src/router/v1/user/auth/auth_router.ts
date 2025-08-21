@@ -10,6 +10,7 @@ import { sendOtp } from "../../../../utils/sendOtpSmsIr";
 import { VerifyOtpRedis } from "../../../../utils/connectRedis";
 import { validate } from "class-validator";
 import { Profile } from "../../../../entity/Profile";
+import { funcCheckUserActive } from "../../../../middlewares/checkUserActive";
 
 const userAuthRouter = express.Router()
 
@@ -67,7 +68,7 @@ userAuthRouter.post(
             await createUser.save()
 
             // create and return token
-            const token  = funcCreateToken(createUser.id)
+            const token  = funcCreateToken(createUser.id, createUser.is_active)
             return res.status(201).json(
                 {
                     "status": "success",
@@ -76,7 +77,12 @@ userAuthRouter.post(
                 }
             )
         }catch (error) {
-            return res.status(500).json({message: "server error"})
+            return res.status(500).json(
+                {
+                    status: false,
+                    message: "server error"
+                }
+            )
         }
 
     }
@@ -119,7 +125,7 @@ userAuthRouter.post(
                 )
             }
             // create token
-            const token = funcCreateToken(user.id)
+            const token = funcCreateToken(user.id, user.is_active)
 
             // return token
             return res.status(200).json(
@@ -205,7 +211,7 @@ userAuthRouter.post(
             }
 
             // generate and return token
-            const token = funcCreateToken(getUser.id);
+            const token = funcCreateToken(getUser.id, getUser.is_active);
             return res.status(200).json({
                 status: true,
                 token,
@@ -320,7 +326,7 @@ userAuthRouter.post(
                     }
                 );
             }
-            const token = funcCreateToken(getUser.id);
+            const token = funcCreateToken(getUser.id, getUser.is_active);
             return res.status(200).json(
                 {
                     status: "success",
@@ -379,7 +385,7 @@ userAuthRouter.get(
     async (req: Request, res: Response) => {
         try {
             const user = (req as any).user;
-            const userId = user.userId;
+            const userId = user.user_id;
             
             // get and validate user
             const userRepository = AppDataSource.getRepository(User);
@@ -446,7 +452,7 @@ userAuthRouter.get(
                         }
                     );
                 }
-                if (getUser.id !== (req as any).user.userId || getUser.is_public === false) {
+                if (getUser.id !== (req as any).user.user_id || getUser.is_public === false) {
                     return res.status(403).json(
                         {
                             status: false,
@@ -505,7 +511,7 @@ userAuthRouter.patch(
                         }
                     );
                 }
-                if (user.id !== (req as any).user.userId) {
+                if (user.id !== (req as any).user.user_id) {
                     return res.status(403).json(
                         {
                             status: false,
@@ -574,16 +580,18 @@ userAuthRouter.patch(
     }
 );
 
+// get profile
 userAuthRouter.get(
     "/profile/",
     authenticateJWT,
+    funcCheckUserActive,
     async (req: Request, res: Response) => {
         try {
             // user repository and get user
             const userRepository = AppDataSource.getRepository(Profile);
             const getProfile = await userRepository.findOne(
                 {
-                    where: {user_id: (req as any).user.userId}
+                    where: {user_id: (req as any).user.user_id}
                 }
             )
 
@@ -595,7 +603,7 @@ userAuthRouter.get(
                     }
                 );
             }
-            if (getProfile.user_id.is_active === false) {
+            if ((req as any).user.is_active === false) {
                 return res.status(403).json(
                     {
                         status: false,
@@ -622,6 +630,35 @@ userAuthRouter.get(
     });
 
 
+// update profile
+userAuthRouter.patch(
+    "/profile/:id",
+    authenticateJWT,
+    async (req: Request, res: Response) => {
+        try {
+            if ((req as any).user.is_active === false) {
+                return res.status(403).json(
+                    {
+                        status: false,
+                        message: "your account is ben!"
+                    }
+                );
+            }
+            return res.status(200).json(
+                {
+                    status: "success"
+                }
+            )
+        } catch (error) {
+            return res.status(500).json(
+                {
+                    status: false,
+                    message: "server error"
+                }
+            );
+        }
+    }
+);
 
 export {
     userAuthRouter

@@ -14,4 +14,4 @@ function decodeToken(token: string) {
     }
 }
 
-console.log(decodeToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU1NDE1MDA5LCJpYXQiOjE3NTQ4MTAyMDksImp0aSI6Ijg1MDBlNTA2MTVmNDQ4MTg4MDk0NDNjZjFjZWI5ZDQ0IiwidXNlcl9pZCI6IjEifQ.Aw7r3Ng2iiT9Z1ZxBDYoYxiyqFjiE59Z-hkzo6aSeJc"));
+// console.log(decodeToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU1NDE1MDA5LCJpYXQiOjE3NTQ4MTAyMDksImp0aSI6Ijg1MDBlNTA2MTVmNDQ4MTg4MDk0NDNjZjFjZWI5ZDQ0IiwidXNlcl9pZCI6IjEifQ.Aw7r3Ng2iiT9Z1ZxBDYoYxiyqFjiE59Z-hkzo6aSeJc"));
