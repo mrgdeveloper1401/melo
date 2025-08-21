@@ -408,9 +408,9 @@ userAuthRouter.post(
 //     }
 // )
 
-// // profile
+// // user
 userAuthRouter.get(
-    "/profile/",
+    "/user/",
     authenticateJWT,
     async (req: Request, res: Response) => {
         try {
@@ -455,19 +455,66 @@ userAuthRouter.get(
     }
 )
 
-// userAuthRouter.put(
-//     "/profile/:user_id/",
-//         async (req: Request, res: Response) => {
+// detail user
+userAuthRouter.get(
+    "/user/:id/",
+    authenticateJWT,
+        async (req: Request, res: Response) => {
+            try {
+                const { id } = req.params;
+                
+                const userRepository = AppDataSource.getRepository(User);
+                const getUser = await userRepository.findOne({where: {id: Number(id)}});
 
-//     }
-// )
+                if (!getUser) {
+                    return res.status(404).json(
+                        {
+                            status: false,
+                            message: "user not found"
+                        }
+                    );
+                }
+                if (getUser.is_active === false) {
+                    return res.status(403).json(
+                        {
+                            status: false,
+                            message: "your account is ben!"
+                        }
+                    );
+                }
+                if (getUser.id !== (req as any).user.userId || getUser.is_public === false) {
+                    return res.status(403).json(
+                        {
+                            status: false,
+                            message: "you dot not have permission"
+                        }
+                    )
+                }
+                const { password, is_staff, is_superuser, is_active, ...userProfile } = getUser;
+                return res.status(200).json(
+                    {
+                        status: "success",
+                        data: userProfile
+                    }
+                );
+            } catch (error) {
+                return res.status(500).json(
+                    {
+                        status: false,
+                        message: error
+                    }
+                );
+            }
+    }
+)
 
-// userAuthRouter.patch(
-//     "/profile/:user_id/",
-//         async (req: Request, res: Response) => {
+userAuthRouter.put(
+    "/profile/:id/",
+        async (req: Request, res: Response) => {
+            
+    }
+)
 
-//     }
-// )
 export {
     userAuthRouter
 }
