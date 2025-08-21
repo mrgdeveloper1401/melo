@@ -44,7 +44,7 @@ export class User extends TimestampEntity{
   @Column({ default: true })
   is_public: boolean;
 
-  @OneToOne(() => Profile, profile => profile.user)
+  @OneToOne(() => Profile, profile => profile.user_id)
   profile: Profile;
 
   @OneToMany(

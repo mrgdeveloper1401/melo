@@ -7,9 +7,9 @@ import { funcCreateToken } from "../../../../utils/createJwtToken";
 import bcrypt from "bcrypt";
 import { authenticateJWT, notAuthenticateJwt } from "../../../../utils/authenticate";
 import { sendOtp } from "../../../../utils/sendOtpSmsIr";
-import { redisClient, VerifyOtpRedis } from "../../../../utils/connectRedis";
-import jwt from "jsonwebtoken";
+import { VerifyOtpRedis } from "../../../../utils/connectRedis";
 import { validate } from "class-validator";
+import { Profile } from "../../../../entity/Profile";
 
 const userAuthRouter = express.Router()
 
@@ -80,7 +80,7 @@ userAuthRouter.post(
         }
 
     }
-)
+);
 
 // login_by_username
 userAuthRouter.post(
@@ -139,7 +139,7 @@ userAuthRouter.post(
         }
 
     }
-)
+);
 
 // login_by_email
 userAuthRouter.post(
@@ -221,7 +221,7 @@ userAuthRouter.post(
             )
         }
     }
-)
+);
 
 // request_login_by_otp_phone
 userAuthRouter.post(
@@ -265,7 +265,7 @@ userAuthRouter.post(
 
         // create and send otp code
     }
-)
+);
 
 // verify_login_by_otp_phone
 userAuthRouter.post(
@@ -332,7 +332,7 @@ userAuthRouter.post(
             return res.status(500).json({message: "server error"})   
         }
     }
-)
+);
 
 // send request otp into email
 userAuthRouter.post(
@@ -370,7 +370,7 @@ userAuthRouter.post(
             );
         }
     }
-)
+);
 
 // // user
 userAuthRouter.get(
@@ -417,7 +417,7 @@ userAuthRouter.get(
             );
         }
     }
-)
+);
 
 // detail user
 userAuthRouter.get(
@@ -470,7 +470,7 @@ userAuthRouter.get(
                 );
             }
     }
-)
+);
 
 // update user
 userAuthRouter.patch(
@@ -572,7 +572,56 @@ userAuthRouter.patch(
                 
             }
     }
-)
+);
+
+userAuthRouter.get(
+    "/profile/",
+    authenticateJWT,
+    async (req: Request, res: Response) => {
+        try {
+            // user repository and get user
+            const userRepository = AppDataSource.getRepository(Profile);
+            const getProfile = await userRepository.findOne(
+                {
+                    where: {user_id: (req as any).user.userId}
+                }
+            )
+
+            if (!getProfile) {
+                return res.status(404).json(
+                    {
+                        status: false,
+                        message: "profile ot found"
+                    }
+                );
+            }
+            if (getProfile.user_id.is_active === false) {
+                return res.status(403).json(
+                    {
+                        status: false,
+                        message: "your account is ben!"
+                    }
+                );
+            }
+
+            return res.status(200).json(
+                {
+                    status: "success",
+                    data: getProfile
+                }
+            );
+
+        } catch (error) {
+            return res.status(500).json(
+                {
+                    status: false,
+                    message: "server error"
+                }
+            )
+        }
+    });
+
+
 
 export {
     userAuthRouter
