@@ -19,6 +19,7 @@ import { refreshTokenDto } from "../../../../dtos/auth/RefreshToken";
 import { TokenBlockDto } from "../../../../dtos/auth/TokenBlock";
 import { TokenBlock } from "../../../../entity/TokenBlock";
 import { LoginUsernameDto } from "../../../../dtos/auth/LoginUsername";
+import { LoginByEmailDto } from "../../../../dtos/auth/LoginInByEmail";
 
 const userAuthRouter = express.Router()
 
@@ -306,7 +307,8 @@ userAuthRouter.post(
             // check user exits
             const checkUsername = await user.findOne(
                 {
-                    where: {username: signupUserDto.username}
+                    where: {username: signupUserDto.username},
+                    select: ['username', 'is_active', "password", "is_staff"]
                 }
             );
             if (checkUsername) {
@@ -386,7 +388,7 @@ userAuthRouter.post(
             const userRepository = AppDataSource.getRepository(User);
             const user = await userRepository.findOne(
                 { 
-                    where: {username: loginByUsername.username}, select: ['username', "password", "is_active"]}
+                    where: {username: loginByUsername.username}, select: ['username', "password", "is_active", "is_staff"]}
                 ) ;
             const hashPassword = funcCreateHashPassword(loginByUsername.password);
             const isMatch = user.password === hashPassword
@@ -414,7 +416,9 @@ userAuthRouter.post(
             return res.status(200).json(
                 {
                     "status": "success",
-                    token: token
+                    access_token: token['accessToken'],
+                    refresh_token: token['refreshToken'],
+                    is_staff: user.is_staff
                 }
             )
         } catch (error) {
@@ -441,22 +445,16 @@ userAuthRouter.post(
                 return res.status(400).json({message: "request body is required"})
             }
 
-            const {email, password} = req.body;
-    
-            // check data
-            if (!email) {
-                return res.status(400).json({message: "email is required"});
-            }
-            if (!password) {
-                return res.status(400).json({message: "password is required"});
-            }
+            // validate data
+            const loginByEmail = plainToClass(LoginByEmailDto, req.body)
 
             const userRepository = AppDataSource.getRepository(User);
   
             // get user
             const getUser = await userRepository.findOne(
                 {
-                    where: {email: email}
+                    where: {email: loginByEmail.email},
+                    select: ['email', "is_active", "password", 'is_staff']
                 }
             );
 
@@ -471,20 +469,18 @@ userAuthRouter.post(
             }
 
             // compare password
-            const isValidPassword = bcrypt.compare(password, getUser.password);
-            const hash = funcCreateHashPassword(password)
-            if (!isValidPassword) {
-                return res.status(404).json(
+            const isValidPassword = funcCreateHashPassword(loginByEmail.password)
+            if (isValidPassword !== getUser.password) {
+                return res.status(400).json(
                     {
                         status: false,
                         message: "invalid email or password",
-                        hash: hash
                     }
                 );
             }
 
             // check user is_active
-            if (getUser.is_active === false) {
+            if (!getUser.is_active) {
                 return res.status(403).json(
                     {
                         status: false,
@@ -497,7 +493,8 @@ userAuthRouter.post(
             const token = funcCreateToken(getUser.id, getUser.is_active);
             return res.status(200).json({
                 status: true,
-                token,
+                access_token: token["accessToken"],
+                refresh_token: token['refreshToken'],
                 isAdmin: getUser.is_staff,
             });
 
