@@ -18,6 +18,7 @@ import { SignUpUserDto } from "../../../../dtos/auth/SignupUser";
 import { refreshTokenDto } from "../../../../dtos/auth/RefreshToken";
 import { TokenBlockDto } from "../../../../dtos/auth/TokenBlock";
 import { TokenBlock } from "../../../../entity/TokenBlock";
+import { LoginUsernameDto } from "../../../../dtos/auth/LoginUsername";
 
 const userAuthRouter = express.Router()
 
@@ -66,7 +67,7 @@ userAuthRouter.post(
                     }
                 );
             }
-            
+
             // decode refresh token
             try {
                 const decodeRefreshToken = jwt.verify(refreshToken.refresh_token, refreshSecretKey)
@@ -361,22 +362,42 @@ userAuthRouter.post(
                 return res.status(400).json({message: "request body is required"})
             }
 
-            const { username, password } = req.body;
-            if (!username) {
-                return res.status(400).json({message: "username is required"});
-            }
-            if (!password){
-                return res.status(400).json({message: "password is required"});
-            }
+            // validate data
+            const loginByUsername = plainToClass(LoginUsernameDto, req.body)
+            const error = await validate(loginByUsername);
             
-            const userRepository = AppDataSource.getRepository(User);
-            const user = await userRepository.findOne({where: {username: username}}) ;
-            const isMatch = await bcrypt.compare(password, user.password);
+            if (error.length > 0) {
+                return res.status(400).json(
+                    {
+                        status: false,
+                        message: "Invalid Data",
+                        errors: error.map(
+                            err => (
+                                {
+                                    field: err.property,
+                                    value: err.constraints
+                                }
+                            )
+                        )
+                    }
+                );
+            }
 
-            if (!user && !isMatch) {
+            const userRepository = AppDataSource.getRepository(User);
+            const user = await userRepository.findOne(
+                { 
+                    where: {username: loginByUsername.username}, select: ['username', "password", "is_active"]}
+                ) ;
+            const hashPassword = funcCreateHashPassword(loginByUsername.password);
+            const isMatch = user.password === hashPassword
+
+            if (!user) {
                 return res.status(400).json({message: "username or password is invalid"})
             }
 
+            if (isMatch === false) {
+                return res.status(400).json({message: "username or password is invalid"})
+            }
             // check user is_active
             if (user.is_active === false) {
                 return res.status(400).json(
