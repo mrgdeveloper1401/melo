@@ -1,4 +1,5 @@
 import express from "express";
+import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
 import { User } from "../../../../entity/User";
 import { AppDataSource } from "../../../../data-source";
@@ -14,8 +15,130 @@ import { funcCheckUserActive } from "../../../../middlewares/checkUserActive";
 import { ResetPasswordDto } from "../../../../dtos/auth/ResetPassword.dto";
 import { plainToClass } from "class-transformer";
 import { SignUpUserDto } from "../../../../dtos/auth/SignupUser";
+import { refreshTokenDto } from "../../../../dtos/auth/RefreshToken";
 
 const userAuthRouter = express.Router()
+
+// refresh router
+userAuthRouter.post(
+    "/refresh_token",
+    async (req: Request, res: Response) => {
+        try {
+            // check request body
+            if (!req.body) {
+                return res.status(400).json(
+                    {
+                        success: false,
+                        message: "request body is required"
+                    }
+                );
+            }
+
+            // validate data dto
+            const refreshToken = plainToClass(refreshTokenDto, req.body);
+            const error = await validate(refreshToken);
+            if (error.length > 0) {
+                return res.status(400).json(
+                    {
+                        status: false,
+                        message: "Invalid Data",
+                        errors: error.map(
+                            err => (
+                                {
+                                    field: err.property,
+                                    value: err.constraints
+                                }
+                            )
+                        )
+                    }
+                );
+            }
+
+            // check and validate refresh token
+            const refreshSecretKey = process.env.REFRESH_JWT_SECRET_KEY
+            if (!refreshSecretKey) {
+                return res.status(400).json(
+                    {
+                        status: false,
+                        message: "REFRESH_JWT_SECRET_KEY is not defined in .env file"
+                    }
+                );
+            }
+            
+            // decode refresh token
+            try {
+                const decodeRefreshToken = jwt.verify(refreshToken.refresh_token, refreshSecretKey)
+                if (decodeRefreshToken['type_token'] !== "refresh") {
+                    return res.status(400).json(
+                        {
+                           status: false,
+                           message: "Invalid token type"
+                        }
+                    )
+                }
+                            // check user
+            const userRepository = AppDataSource.getRepository(User);
+            const user = await userRepository.findOne(
+                {
+                    where: {id: decodeRefreshToken['user_id']},
+                    select: ['id', "is_active"]
+                }
+            );
+            if (!user) {
+                return res.status(404).json(
+                    {
+                        status: false,
+                        message: "user not found"
+                    }
+                );
+            }
+            if (!user.is_active) {
+                return res.status(403).json(
+                    {
+                        status: false,
+                        message: "your account is ben!"
+                    }
+                );
+            }
+
+            // create access_token
+            const accessSecretKey = process.env.JWT_SECRET_KEY
+            if (!accessSecretKey) {
+                return res.status(404).json(
+                    {
+                        status: false,
+                        message: "JWT_SECRET_KEY is not found in .env file"
+                    }
+                );
+            }
+            const token = jwt.sign(
+                {user_id: decodeRefreshToken['user_id'], type_token: "access", is_active: user.is_active},
+                accessSecretKey,
+                {expiresIn: "1h"}
+            )
+            return res.status(201).json(
+                {
+                    status: "success",
+                    token: token
+                }
+            )
+            } catch (error) {
+                return res.status(400).json(
+                    {
+                        status: false,
+                        message: error
+                    }
+                );
+            }
+    } catch (error) {
+        return res.status(500).json(
+            {
+                status: false,
+                message: "server error"
+            }
+        )
+    }
+})
 
 // create user
 userAuthRouter.post(
@@ -32,7 +155,7 @@ userAuthRouter.post(
             // validate data
             const signupUserDto = plainToClass(SignUpUserDto, req.body)
             const error = await validate(signupUserDto)
-                        if (error.length > 0) {
+            if (error.length > 0) {
                 return res.status(400).json(
                     {
                         status: false,
