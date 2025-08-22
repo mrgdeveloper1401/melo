@@ -78,6 +78,24 @@ userAuthRouter.post(
                         }
                     )
                 }
+
+                // is token block?
+                const tokenRepository = AppDataSource.getRepository(TokenBlock);
+                const isTokenBlock = await tokenRepository.findOne(
+                    {
+                        where: {token_uuid: decodeRefreshToken['uuid_name']},
+                        select: ['token_uuid']
+                    }
+                );
+                if (isTokenBlock !== null) {
+                    return res.status(400).json(
+                        {
+                            status: false,
+                            message: "this refresh_token blocked"
+                        }
+                    );
+                }
+
                 // check user
                 const userRepository = AppDataSource.getRepository(User);
                 const user = await userRepository.findOne(
@@ -206,7 +224,6 @@ userAuthRouter.post(
                         select: ['token_uuid']
                     }
                 )
-                console.log(checkTokenExists);
                 if (checkTokenExists) {
                     return res.status(400).json(
                         {
