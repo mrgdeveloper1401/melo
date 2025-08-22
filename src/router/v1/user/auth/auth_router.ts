@@ -5,12 +5,15 @@ import { AppDataSource } from "../../../../data-source";
 import { funcCreateHashPassword } from "../../../../utils/createHashPassword";
 import { funcCreateToken } from "../../../../utils/createJwtToken";
 import bcrypt from "bcrypt";
-import { authenticateJWT, notAuthenticateJwt } from "../../../../utils/authenticate";
+import { authenticateJWT, notAuthenticateJwt } from "../../../../middlewares/authenticate";
 import { sendOtp } from "../../../../utils/sendOtpSmsIr";
 import { VerifyOtpRedis } from "../../../../utils/connectRedis";
 import { validate } from "class-validator";
 import { Profile } from "../../../../entity/Profile";
 import { funcCheckUserActive } from "../../../../middlewares/checkUserActive";
+import { ResetPasswordDto } from "../../../../dtos/auth/ResetPassword.dto";
+import { plainToClass } from "class-transformer";
+import { SignUpUserDto } from "../../../../dtos/auth/SignupUser";
 
 const userAuthRouter = express.Router()
 
@@ -20,23 +23,30 @@ userAuthRouter.post(
     notAuthenticateJwt,
     async (req: Request, res: Response) => {
         try {
+
             // check request body
             if (!req.body) {
                 return res.status(400).json({message: "request body is required"})
             }
-            
-            // request body
-            const {username, password, email} = req.body
-        
-            // check validate data
-            if (!username) {
-                return res.status(400).json({message: "username is required"})
-            }
-            if (!password){
-                return res.status(400).json({message: "password is required"})
-            }
-            if (!email) {
-                return res.status(400).json({message: "email is required"})
+
+            // validate data
+            const signupUserDto = plainToClass(SignUpUserDto, req.body)
+            const error = await validate(signupUserDto)
+                        if (error.length > 0) {
+                return res.status(400).json(
+                    {
+                        status: false,
+                        message: "Validation Field",
+                        errors: error.map(
+                            err => (
+                                {
+                                    field: err.property,
+                                    constraints: err.constraints
+                                }
+                            )
+                        )
+                    }
+                );
             }
 
             const user = AppDataSource.getRepository(User)
@@ -44,7 +54,7 @@ userAuthRouter.post(
             // check user exits
             const checkUsername = await user.findOne(
                 {
-                    where: {username: username}
+                    where: {username: signupUserDto.username}
                 }
             );
             if (checkUsername) {
@@ -52,7 +62,7 @@ userAuthRouter.post(
             }
                     const checkEmail = await user.findOne(
                 {
-                    where: {email: email}
+                    where: {email: signupUserDto.email}
                 }
             )
             if (checkEmail) {
@@ -60,10 +70,10 @@ userAuthRouter.post(
             }
 
             // create user
-            const hashPassword = funcCreateHashPassword(password);
+            const hashPassword = funcCreateHashPassword(signupUserDto.password);
             const createUser = new User();
-            createUser.username = username;
-            createUser.email = email;
+            createUser.username = signupUserDto.username;
+            createUser.email = signupUserDto.email;
             createUser.password = hashPassword;
             await createUser.save()
 
@@ -72,7 +82,8 @@ userAuthRouter.post(
             return res.status(201).json(
                 {
                     "status": "success",
-                    token: token,
+                    accessToken: token.accessToken,
+                    refreshToken: token.refreshToken,
                     isAdmin: createUser.is_staff
                 }
             )
@@ -634,16 +645,9 @@ userAuthRouter.get(
 userAuthRouter.patch(
     "/profile/:id",
     authenticateJWT,
+    funcCheckUserActive,
     async (req: Request, res: Response) => {
         try {
-            if ((req as any).user.is_active === false) {
-                return res.status(403).json(
-                    {
-                        status: false,
-                        message: "your account is ben!"
-                    }
-                );
-            }
             return res.status(200).json(
                 {
                     status: "success"
@@ -656,6 +660,86 @@ userAuthRouter.patch(
                     message: "server error"
                 }
             );
+        }
+    }
+);
+
+// reset password
+userAuthRouter.post(
+    "/reset_password/",
+    authenticateJWT,
+    funcCheckUserActive,
+    async (req: Request, res: Response) => {
+        try {
+            if (req.body == null) {
+                return res.status(400).json(
+                    {
+                        message: "you must be send json data"
+                    }
+                )
+            }
+            const resetPasswordDto = plainToClass(ResetPasswordDto, req.body);
+            const error = await validate(resetPasswordDto);
+
+            if (error.length > 0) {
+                return res.status(400).json(
+                    {
+                        status: false,
+                        message: "Validation Field",
+                        errors: error.map(
+                            err => (
+                                {
+                                    field: err.property,
+                                    constraints: err.constraints
+                                }
+                            )
+                        )
+                    }
+                );
+            }
+
+            // get user
+            const userRepository = AppDataSource.getRepository(User);
+            const userId = (req as any).user.user_id
+            const user = await userRepository.findOne(
+                {
+                    where: {id: Number(userId)},
+                    select: ['id', 'password']
+                }
+            )
+
+            // check old password
+            const hashOldPassword = funcCreateHashPassword(resetPasswordDto.old_password)
+            const isOldPasswordValid = await bcrypt.compare(
+                hashOldPassword,
+                user.password
+            );
+            if (!isOldPasswordValid) {
+                return res.status(400).json(
+                    {
+                        status: false,
+                        message: "old password is wrong"
+                    }
+                );
+            }
+
+            // check new_password and confirm_password
+            if (resetPasswordDto.new_password !== resetPasswordDto.confirm_password) {
+                return res.status(400).json(
+                    {
+                        status: false,
+                        message: "password not same"
+                    }
+                )
+            }
+        } catch (error) {
+            return res.status(500).json(
+                {
+                    status: false,
+                    message: "server error",
+                    error: error.message
+                }
+            )
         }
     }
 );
