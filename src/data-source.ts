@@ -25,6 +25,7 @@ import { UserLog } from "./entity/UserLog";
 import { Song } from "./entity/Song";
 import { Gateway } from "./entity/Gateway";
 import { UserSubscriber } from "./utils/Subscriber/UserSubscriber";
+import { TokenBlock } from "./entity/TokenBlock";
 
 
 export const AppDataSource = new DataSource({
@@ -60,7 +61,8 @@ export const AppDataSource = new DataSource({
         PlanFeature,
         UserPayment,
         UserLog,
-        Gateway
+        Gateway,
+        TokenBlock
     ],
     migrations: [],
     subscribers: [UserSubscriber],

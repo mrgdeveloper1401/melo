@@ -16,6 +16,8 @@ import { ResetPasswordDto } from "../../../../dtos/auth/ResetPassword.dto";
 import { plainToClass } from "class-transformer";
 import { SignUpUserDto } from "../../../../dtos/auth/SignupUser";
 import { refreshTokenDto } from "../../../../dtos/auth/RefreshToken";
+import { TokenBlockDto } from "../../../../dtos/auth/TokenBlock";
+import { TokenBlock } from "../../../../entity/TokenBlock";
 
 const userAuthRouter = express.Router()
 
@@ -76,9 +78,9 @@ userAuthRouter.post(
                         }
                     )
                 }
-                            // check user
-            const userRepository = AppDataSource.getRepository(User);
-            const user = await userRepository.findOne(
+                // check user
+                const userRepository = AppDataSource.getRepository(User);
+                const user = await userRepository.findOne(
                 {
                     where: {id: decodeRefreshToken['user_id']},
                     select: ['id', "is_active"]
@@ -139,6 +141,115 @@ userAuthRouter.post(
         )
     }
 })
+
+// token block
+userAuthRouter.post(
+    "/token_block/",
+    async (req: Request, res: Response) => {
+        try {
+            // validate data
+            if (!req.body) {
+                return res.status(400).json(
+                    {
+                        status: false,
+                        message: "request body is required"
+                    }
+                );
+            }
+
+            const tokenBlock = plainToClass(TokenBlockDto, req.body)
+            const error = await validate(tokenBlock)
+            if (error.length > 0) {
+                return res.status(400).json(
+                    {
+                        status: false,
+                        message: "Invalid Data",
+                        errors: error.map(
+                            err => (
+                                {
+                                    field: err.property,
+                                    value: err.constraints
+                                }
+                            )
+                        )
+                    }
+                );
+            }
+
+            // check refresh token
+            try {
+                const refreshSecretKey = process.env.REFRESH_JWT_SECRET_KEY
+                if (!refreshSecretKey) {
+                    return res.status(404).json(
+                        {
+                            status: false,
+                            message: "REFRESH_JWT_SECRET_KEY is not found in .env file"
+                        }
+                    );
+                }
+    
+                const verifyRefreshToken = jwt.verify(tokenBlock.refresh_token, refreshSecretKey)
+                if (verifyRefreshToken["type_token"] !== "refresh") {
+                    return res.status(400).json(
+                        {
+                            status: false,
+                            message: "Invalid Token Type!"
+                        }
+                    );
+                }
+
+                // check token exits
+                const tokenRepository = AppDataSource.getRepository(TokenBlock);
+                const checkTokenExists = await tokenRepository.findOne(
+                    {
+                        where: {token_uuid: verifyRefreshToken['uuid_name']},
+                        select: ['token_uuid']
+                    }
+                )
+                console.log(checkTokenExists);
+                if (checkTokenExists) {
+                    return res.status(400).json(
+                        {
+                            status: false,
+                            message: "token already exists"
+                        }
+                    );
+                }
+                
+                // save token in database
+                const getUserByToken = verifyRefreshToken['user_id'];
+                const createTokenBlock = new TokenBlock();
+                createTokenBlock.user_id = getUserByToken;
+                createTokenBlock.refresh_token = tokenBlock.refresh_token;
+                createTokenBlock.token_uuid = verifyRefreshToken['uuid_name']
+                await createTokenBlock.save();
+
+                return res.status(201).json(
+                    {
+                        status: "success",
+                        message: "block token successfully"
+                    }
+                );
+
+            } catch (error) {
+                return res.status(400).json(
+                    {
+                        status: false,
+                        message: error
+                    }
+                );
+            }
+        } catch (error) {
+            return res.status(500).json(
+                {
+                    status: false,
+                    message: "server error"
+                }
+            )
+        }
+        
+    }
+);
 
 // create user
 userAuthRouter.post(

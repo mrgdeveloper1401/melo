@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import path = require("path");
+import { v4 as uuidV4 } from "uuid";
 
 const envPath = path.resolve(process.cwd(), "../../.env");
 dotenv.config({path: envPath});
@@ -19,7 +20,12 @@ export const funcCreateToken = (userId: number, isActive: boolean) => {
         {expiresIn: "1h"}
     );
     const refreshToken = jwt.sign(
-        {user_id: userId, is_active: isActive, type_token: "refresh"},
+        {
+            user_id: userId, 
+            is_active: isActive, 
+            type_token: "refresh",
+            uuid_name: uuidV4()
+        },
         refreshSecretKey as string,
         {expiresIn: "365d"}
     );

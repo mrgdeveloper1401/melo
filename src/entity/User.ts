@@ -10,6 +10,7 @@ import { Profile } from "./Profile";
 import { TimestampEntity } from "./Abstract";
 import { UserNotification } from "./UserNotification";
 import { IsEmail } from "class-validator";
+import { TokenBlock } from "./TokenBlock";
 
 @Entity({name: "users"})
 export class User extends TimestampEntity{
@@ -52,4 +53,10 @@ export class User extends TimestampEntity{
     (notification) => notification.user
   )
   user_notifications_set: UserNotification[];
+
+  @OneToMany(
+    () => TokenBlock,
+    (token) => token.user_id
+  )
+  token_block_set: TokenBlock[];
 }
