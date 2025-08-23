@@ -3,6 +3,7 @@ import { User } from "./User";
 import { Song } from "./Song";
 import { TimestampEntity } from "./Abstract";
 
+
 @Entity()
 export class FavoriteSong extends TimestampEntity{
   @PrimaryGeneratedColumn()

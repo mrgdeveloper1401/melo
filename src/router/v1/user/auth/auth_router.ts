@@ -22,7 +22,7 @@ import { LoginByEmailDto } from "../../../../dtos/auth/LoginInByEmail";
 import { RequestOtpPhoneDto } from "../../../../dtos/auth/RequestOtpPhone";
 import { VerifyOtpPhoneDto } from "../../../../dtos/auth/VerifyOtpPhone";
 import { UserNotification } from "../../../../entity/UserNotification";
-import { Follow } from "../../../../entity/Follow";
+import { confirmForgetPasswordDto } from "../../../../dtos/auth/ConfirmForgetPassword";
 
 const userAuthRouter = express.Router()
 
@@ -574,7 +574,6 @@ userAuthRouter.post(
             return res.status(500).json({message: "server error", error})
         }
 
-        // create and send otp code
     }
 );
 
@@ -1150,6 +1149,104 @@ userAuthRouter.get(
     }
 );
 
+
+// verify change password
+userAuthRouter.post(
+    "/confirm_forget_password/",
+    notAuthenticateJwt,
+    async (req: Request, res: Response) => {
+        if (!req.body) {
+            return res.status(400).json(
+                {
+                    status: false,
+                    message: "request body must be not null"
+                }
+            )
+        }
+
+        // validate data
+        const confirmForgetPassword = plainToClass(confirmForgetPasswordDto, req.body);
+        const errors = await validate(confirmForgetPassword);
+        if (errors.length > 0) {
+            return res.status(400).json(
+                {
+                    status: false,
+                    message: "Invalid Data",
+                    error: errors.map(
+                        err => (
+                            {
+                                field: err.property,
+                                value: err.constraints
+                            }
+                        )
+                    )
+                }
+            );
+        }
+
+        if (confirmForgetPassword.confirm_new_password !== confirmForgetPassword.new_password) {
+            return res.status(400).json(
+                {
+                    status: false,
+                    message: "password must be same"
+                }
+            )
+        }
+
+        const changePassword = funcCreateHashPassword(confirmForgetPassword.confirm_new_password);
+        const checkOtpCode = await VerifyOtpRedis(confirmForgetPassword.code, req.ip)
+
+        if (checkOtpCode === null) {
+                return res.status(404).json(
+                    {
+                        status: false,
+                        message: "code is invalid"
+                    }
+                )
+            }
+            
+        // check user
+        const userRepository = AppDataSource.getRepository(User);
+        const user = await userRepository.findOne(
+            {
+                where: {mobile_phone: confirmForgetPassword.mobile_phone},
+                select: ['id', "mobile_phone", "is_active"]
+            }
+        )
+
+        if (!user) {
+            return res.status(404).json(
+                {
+                    status: false,
+                    message: "user not found"
+                }
+            )
+        }
+        
+        if (!user.is_active) {
+            return res.status(403).json(
+                {
+                    status: false,
+                    message: "your account is ben!"
+                }
+            )
+        }
+
+        user.password = funcCreateHashPassword(confirmForgetPassword.confirm_new_password);
+        await user.save();
+
+        const token = funcCreateToken(user.id, user.is_active)
+        return res.status(200).json(
+            {
+                status: "success",
+                message: "successfully change password",
+                access_token: token['accessToken'],
+                refresh_token: token['refreshToken']
+
+            }
+        )
+
+});
 
 export {
     userAuthRouter
