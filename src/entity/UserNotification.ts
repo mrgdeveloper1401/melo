@@ -23,6 +23,9 @@ export class UserNotification extends TimestampEntity{
   @Column({nullable: true})
   notification_type: string;
 
+  @Column({default: true})
+  is_active: boolean;
+
   // @CreateDateColumn()
   // createdAt: Date;
 

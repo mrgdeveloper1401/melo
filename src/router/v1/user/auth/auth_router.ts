@@ -21,6 +21,7 @@ import { LoginUsernameDto } from "../../../../dtos/auth/LoginUsername";
 import { LoginByEmailDto } from "../../../../dtos/auth/LoginInByEmail";
 import { RequestOtpPhoneDto } from "../../../../dtos/auth/RequestOtpPhone";
 import { VerifyOtpPhoneDto } from "../../../../dtos/auth/VerifyOtpPhone";
+import { UserNotification } from "../../../../entity/UserNotification";
 
 const userAuthRouter = express.Router()
 
@@ -1087,6 +1088,61 @@ userAuthRouter.post(
                     status: false,
                     message: "server error",
                     error: error.message
+                }
+            )
+        }
+    }
+);
+
+// user notification
+userAuthRouter.get(
+    "/notifications/",
+    authenticateJWT,
+    async (req: Request, res: Response) => {
+        try {
+            // get data and pagination
+            const page = (req.query.page as string) || 1; // current page
+            const limit = parseInt(req.query.limit as string) || 20; // item in page
+            const skip = (Number(page) - 1) * limit; // calc item skip
+            const notificationRepository = AppDataSource.getRepository(UserNotification);
+            const [notification, totalCount] = await notificationRepository.findAndCount(
+                {
+                    where: {user: (req as any).user_id, is_active: true},
+                    select: {
+                        title: true,
+                        body: true,
+                        notification_redirect_url: true,
+                        notification_type: true,
+                    },
+                    skip: skip,
+                    take: limit
+            }
+        );
+
+        // calc pagination
+        const totalPage = Math.ceil(totalCount / Number(limit));
+        const hasNext = Number(page) < totalPage;
+        const hasPrev = Number(page) > 1
+
+        return res.status(200).json(
+            {
+                status: "success",
+                data: notification,
+                pagination: {
+                    currentPage: page,
+                    totalPages: totalPage,
+                    totalItem: totalCount,
+                    itemPerPage: limit,
+                    hasNext: hasNext,
+                    hasPrev: hasPrev
+                }
+            }
+        );
+        } catch (error) {
+            return res.status(500).json(
+                {
+                    status: false,
+                    message: "server error"
                 }
             )
         }
