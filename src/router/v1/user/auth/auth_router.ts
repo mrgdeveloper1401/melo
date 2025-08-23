@@ -460,7 +460,7 @@ userAuthRouter.post(
             const getUser = await userRepository.findOne(
                 {
                     where: {email: loginByEmail.email},
-                    select: ['email', "is_active", "password", 'is_staff', "is_artist"]
+                    select: ["id", 'email', "is_active", "password", 'is_staff', "is_artist"]
                 }
             );
 
