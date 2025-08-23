@@ -10,6 +10,9 @@ export class Image extends TimestampEntity{
   @Column({ length: 255 })
   file_name: string;
 
+  @Column({length: 500})
+  image_path: string;
+
   @Column({ length: 50 })
   format: string;
 

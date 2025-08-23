@@ -15,7 +15,7 @@ export class UserSubscriber implements EntitySubscriberInterface<User> {
             const user = event.entity;
 
             const profile = new Profile();
-            profile.user_id = user;
+            profile.user = user;
 
             await profileRepository.save(profile);
         } catch (error) {

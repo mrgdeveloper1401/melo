@@ -28,7 +28,7 @@ export class Profile extends TimestampEntity{
 
   @OneToOne(() => User, (user_id) => user_id.profile, {onDelete: "RESTRICT", nullable: false})
   @JoinColumn({name: "user_id"})
-  user_id: User;
+  user: User;
 
   @ManyToOne(() => Image, (image) => image.profile_image_set,{ nullable: true , onDelete: "RESTRICT"})
   @JoinColumn({ name: 'profile_image_id' })

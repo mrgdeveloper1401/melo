@@ -5,7 +5,6 @@ import { User } from "../../../../entity/User";
 import { AppDataSource } from "../../../../data-source";
 import { funcCreateHashPassword } from "../../../../utils/createHashPassword";
 import { funcCreateToken } from "../../../../utils/createJwtToken";
-import bcrypt from "bcrypt";
 import { authenticateJWT, notAuthenticateJwt } from "../../../../middlewares/authenticate";
 import { sendOtp } from "../../../../utils/sendOtpSmsIr";
 import { VerifyOtpRedis } from "../../../../utils/connectRedis";
@@ -704,206 +703,206 @@ userAuthRouter.post(
 );
 
 // // user
-userAuthRouter.get(
-    "/user/",
-    authenticateJWT,
-    async (req: Request, res: Response) => {
-        try {
-            const user = (req as any).user;
-            const userId = user.user_id;
+// userAuthRouter.get(
+//     "/user/",
+//     authenticateJWT,
+//     async (req: Request, res: Response) => {
+//         try {
+//             const user = (req as any).user;
+//             const userId = user.user_id;
             
-            // get and validate user
-            const userRepository = AppDataSource.getRepository(User);
-            const getUser = await userRepository.findOne({where: {id: userId}})
-            if (!getUser) {
-                return res.status(404).json(
-                    {
-                        status: false,
-                        message: "user not found"
-                    }
-                );
-            }
-            if (getUser.is_active === false) {
-                return res.status(403).json(
-                    {
-                        status: false,
-                        message: "your account is ben!"
-                    }
-                );
-            }
+//             // get and validate user
+//             const userRepository = AppDataSource.getRepository(User);
+//             const getUser = await userRepository.findOne({where: {id: userId}})
+//             if (!getUser) {
+//                 return res.status(404).json(
+//                     {
+//                         status: false,
+//                         message: "user not found"
+//                     }
+//                 );
+//             }
+//             if (getUser.is_active === false) {
+//                 return res.status(403).json(
+//                     {
+//                         status: false,
+//                         message: "your account is ben!"
+//                     }
+//                 );
+//             }
 
-            const { password, is_staff, is_superuser, is_active, ...userProfile } = getUser;
-            return res.status(200).json(
-                {
-                    status: "success",
-                    data: userProfile 
-                }
-            );
-        } catch (error) {
-            return res.status(500).json(
-                {
-                    status: false,
-                    error: error
-                }
-            );
-        }
-    }
-);
+//             const { password, is_staff, is_superuser, is_active, ...userProfile } = getUser;
+//             return res.status(200).json(
+//                 {
+//                     status: "success",
+//                     data: userProfile 
+//                 }
+//             );
+//         } catch (error) {
+//             return res.status(500).json(
+//                 {
+//                     status: false,
+//                     error: error
+//                 }
+//             );
+//         }
+//     }
+// );
 
 // detail user
-userAuthRouter.get(
-    "/user/:id/",
-    authenticateJWT,
-        async (req: Request, res: Response) => {
-            try {
-                const { id } = req.params;
+// userAuthRouter.get(
+//     "/user/:id/",
+//     authenticateJWT,
+//         async (req: Request, res: Response) => {
+//             try {
+//                 const { id } = req.params;
                 
-                const userRepository = AppDataSource.getRepository(User);
-                const getUser = await userRepository.findOne({where: {id: Number(id)}});
+//                 const userRepository = AppDataSource.getRepository(User);
+//                 const getUser = await userRepository.findOne({where: {id: Number(id)}});
 
-                if (!getUser) {
-                    return res.status(404).json(
-                        {
-                            status: false,
-                            message: "user not found"
-                        }
-                    );
-                }
-                if (getUser.is_active === false) {
-                    return res.status(403).json(
-                        {
-                            status: false,
-                            message: "your account is ben!"
-                        }
-                    );
-                }
-                if (getUser.id !== (req as any).user.user_id || getUser.is_public === false) {
-                    return res.status(403).json(
-                        {
-                            status: false,
-                            message: "you dot not have permission"
-                        }
-                    )
-                }
-                const { password, is_staff, is_superuser, is_active, ...userProfile } = getUser;
-                return res.status(200).json(
-                    {
-                        status: "success",
-                        data: userProfile
-                    }
-                );
-            } catch (error) {
-                return res.status(500).json(
-                    {
-                        status: false,
-                        message: error
-                    }
-                );
-            }
-    }
-);
+//                 if (!getUser) {
+//                     return res.status(404).json(
+//                         {
+//                             status: false,
+//                             message: "user not found"
+//                         }
+//                     );
+//                 }
+//                 if (getUser.is_active === false) {
+//                     return res.status(403).json(
+//                         {
+//                             status: false,
+//                             message: "your account is ben!"
+//                         }
+//                     );
+//                 }
+//                 if (getUser.id !== (req as any).user.user_id || getUser.is_public === false) {
+//                     return res.status(403).json(
+//                         {
+//                             status: false,
+//                             message: "you dot not have permission"
+//                         }
+//                     )
+//                 }
+//                 const { password, is_staff, is_superuser, is_active, ...userProfile } = getUser;
+//                 return res.status(200).json(
+//                     {
+//                         status: "success",
+//                         data: userProfile
+//                     }
+//                 );
+//             } catch (error) {
+//                 return res.status(500).json(
+//                     {
+//                         status: false,
+//                         message: error
+//                     }
+//                 );
+//             }
+//     }
+// );
 
 // update user
-userAuthRouter.patch(
-    "/user/:id/",
-    authenticateJWT,
-        async (req: Request, res: Response) => {
-            try {
-                const { id } = req.params;
-                const userRepository = AppDataSource.getRepository(User);
+// userAuthRouter.patch(
+//     "/user/:id/",
+//     authenticateJWT,
+//         async (req: Request, res: Response) => {
+//             try {
+//                 const { id } = req.params;
+//                 const userRepository = AppDataSource.getRepository(User);
                 
-                // get user query
-                const user = await userRepository.findOne(
-                    {
-                        where: {id: Number(id)}
-                    }
-                );
+//                 // get user query
+//                 const user = await userRepository.findOne(
+//                     {
+//                         where: {id: Number(id)}
+//                     }
+//                 );
 
-                // check user
-                if (!user) {
-                    return res.status(404).json(
-                        {
-                            status: false,
-                            message: "user not found"
-                        }
-                    );
-                }
-                if (user.is_active === false) {
-                    return res.status(403).json(
-                        {
-                            status: false,
-                            message: "your account is ben!"
-                        }
-                    );
-                }
-                if (user.id !== (req as any).user.user_id) {
-                    return res.status(403).json(
-                        {
-                            status: false,
-                            message: "you do not have permission "
-                        }
-                    );
-                }
+//                 // check user
+//                 if (!user) {
+//                     return res.status(404).json(
+//                         {
+//                             status: false,
+//                             message: "user not found"
+//                         }
+//                     );
+//                 }
+//                 if (user.is_active === false) {
+//                     return res.status(403).json(
+//                         {
+//                             status: false,
+//                             message: "your account is ben!"
+//                         }
+//                     );
+//                 }
+//                 if (user.id !== (req as any).user.user_id) {
+//                     return res.status(403).json(
+//                         {
+//                             status: false,
+//                             message: "you do not have permission "
+//                         }
+//                     );
+//                 }
 
-                // if request body is None
-                if (req.body == null) {
-                    const { password, is_staff, is_superuser, is_active, ...userProfile } = user;
-                    return res.status(200).json(
-                        {
-                            status: "success",
-                            data: userProfile
-                        }
-                    )
-                }
+//                 // if request body is None
+//                 if (req.body == null) {
+//                     const { password, is_staff, is_superuser, is_active, ...userProfile } = user;
+//                     return res.status(200).json(
+//                         {
+//                             status: "success",
+//                             data: userProfile
+//                         }
+//                     )
+//                 }
 
-                // update field
-                const updateField = [
-                    "mobile_phone",
-                    "username",
-                    "email",
-                    "is_public",
-                    "is_artist"
-                ]               
+//                 // update field
+//                 const updateField = [
+//                     "mobile_phone",
+//                     "username",
+//                     "email",
+//                     "is_public",
+//                     "is_artist"
+//                 ]               
 
-                updateField.forEach(field => {
-                    if (req.body[field] !== undefined) {
-                        (user as any)[field] = req.body[field];
-                    }
-                });
-                const error = await validate(user);
-                if (error.length > 0) {
-                    return res.status(400).json(
-                        {
-                            status: false,
-                            message: "Validation Field",
-                            error: error.map(
-                                err => (
-                                    {
-                                        field: Object.keys(err.constraints || {}),
-                                        message: Object.values(err.constraints || {})
-                                    }
-                                )
-                            )
-                        }
-                    );
-                }
+//                 updateField.forEach(field => {
+//                     if (req.body[field] !== undefined) {
+//                         (user as any)[field] = req.body[field];
+//                     }
+//                 });
+//                 const error = await validate(user);
+//                 if (error.length > 0) {
+//                     return res.status(400).json(
+//                         {
+//                             status: false,
+//                             message: "Validation Field",
+//                             error: error.map(
+//                                 err => (
+//                                     {
+//                                         field: Object.keys(err.constraints || {}),
+//                                         message: Object.values(err.constraints || {})
+//                                     }
+//                                 )
+//                             )
+//                         }
+//                     );
+//                 }
 
-                // save the update user
-                const updateUser = await userRepository.save(user)
-                // Remove sensitive fields from response
-                const { password, is_staff, is_superuser, is_active, ...updateAuthUser } = updateUser;
+//                 // save the update user
+//                 const updateUser = await userRepository.save(user)
+//                 // Remove sensitive fields from response
+//                 const { password, is_staff, is_superuser, is_active, ...updateAuthUser } = updateUser;
 
-                return res.status(200).json(
-                    {
-                        status: "success",
-                        data: updateAuthUser
-                    }
-                );
-            } catch (error) {
+//                 return res.status(200).json(
+//                     {
+//                         status: "success",
+//                         data: updateAuthUser
+//                     }
+//                 );
+//             } catch (error) {
                 
-            }
-    }
-);
+//             }
+//     }
+// );
 
 // get profile
 userAuthRouter.get(
@@ -916,7 +915,36 @@ userAuthRouter.get(
             const userRepository = AppDataSource.getRepository(Profile);
             const getProfile = await userRepository.findOne(
                 {
-                    where: {user_id: (req as any).user.user_id}
+                    where: {user: (req as any).user.user_id},
+                    relations: ['user', 'profile_image', 'banner_image', 'banner_galery_image'],
+                    select: {
+                        id: true,
+                        first_name: true,
+                        last_name: true,
+                        birth_date: true,
+                        bio: true,
+                        jobs: true,
+                        social: true,
+                        banner_image: {
+                            id: true,
+                            image_path: true
+                        },
+                        banner_galery_image: {
+                            id: true,
+                            image_path: true
+                        },
+                        profile_image: {
+                            id: true,
+                            image_path: true
+                        },
+                        user: {
+                            id: true,
+                            username: true,
+                            email: true,
+                            is_artist: true,
+                            is_public: true,
+                        }
+                    }
                 }
             )
 
@@ -952,7 +980,7 @@ userAuthRouter.get(
                 }
             )
         }
-    });
+});
 
 
 // update profile
