@@ -22,6 +22,7 @@ import { LoginByEmailDto } from "../../../../dtos/auth/LoginInByEmail";
 import { RequestOtpPhoneDto } from "../../../../dtos/auth/RequestOtpPhone";
 import { VerifyOtpPhoneDto } from "../../../../dtos/auth/VerifyOtpPhone";
 import { UserNotification } from "../../../../entity/UserNotification";
+import { Follow } from "../../../../entity/Follow";
 
 const userAuthRouter = express.Router()
 
@@ -392,7 +393,7 @@ userAuthRouter.post(
             const userRepository = AppDataSource.getRepository(User);
             const user = await userRepository.findOne(
                 { 
-                    where: {username: loginByUsername.username}, select: ['username', "password", "is_active", "is_staff", "is_artist"]}
+                    where: {username: loginByUsername.username}, select: ["id", 'username', "password", "is_active", "is_staff", "is_artist"]}
                 ) ;
             const hashPassword = funcCreateHashPassword(loginByUsername.password);
             const isMatch = user.password === hashPassword
@@ -1148,6 +1149,7 @@ userAuthRouter.get(
         }
     }
 );
+
 
 export {
     userAuthRouter

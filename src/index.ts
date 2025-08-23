@@ -4,6 +4,7 @@ import express, { Request, Response } from 'express';
 import dotenv from "dotenv";
 import { userAuthRouter } from "./router/v1/user/auth/auth_router";
 import bodyParser from "body-parser";
+import { followRouter } from "./router/v1/user/follow/follow_routers";
 
 dotenv.config()
 
@@ -25,6 +26,9 @@ AppDataSource.initialize().then(() => {
     )
     app.use(
         "/v1/auth/user/", userAuthRouter
+    )
+    app.use(
+        "/v1/follow/user/", followRouter
     )
 
     // listen

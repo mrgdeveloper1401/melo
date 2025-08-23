@@ -15,7 +15,12 @@ export const funcCreateToken = (userId: number, isActive: boolean) => {
     }
 
     const accessToken = jwt.sign(
-        {user_id: userId, is_active: isActive, typeToken: "access"},
+        {
+            user_id: userId, 
+            is_active: isActive, 
+            typeToken: "access",
+            uuid_name: uuidV4()
+        },
         secretKey as string,
         {expiresIn: "1h"}
     );
