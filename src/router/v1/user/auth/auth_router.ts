@@ -20,6 +20,8 @@ import { TokenBlockDto } from "../../../../dtos/auth/TokenBlock";
 import { TokenBlock } from "../../../../entity/TokenBlock";
 import { LoginUsernameDto } from "../../../../dtos/auth/LoginUsername";
 import { LoginByEmailDto } from "../../../../dtos/auth/LoginInByEmail";
+import { RequestOtpPhoneDto } from "../../../../dtos/auth/RequestOtpPhone";
+import { VerifyOtpPhoneDto } from "../../../../dtos/auth/VerifyOtpPhone";
 
 const userAuthRouter = express.Router()
 
@@ -308,7 +310,7 @@ userAuthRouter.post(
             const checkUsername = await user.findOne(
                 {
                     where: {username: signupUserDto.username},
-                    select: ['username', 'is_active', "password", "is_staff"]
+                    select: ['username', 'is_active', "password", "is_staff", "is_artist"]
                 }
             );
             if (checkUsername) {
@@ -339,7 +341,8 @@ userAuthRouter.post(
                     "status": "success",
                     accessToken: token.accessToken,
                     refreshToken: token.refreshToken,
-                    isAdmin: createUser.is_staff
+                    isAdmin: createUser.is_staff,
+                    isArtist: createUser.is_artist
                 }
             )
         }catch (error) {
@@ -389,7 +392,7 @@ userAuthRouter.post(
             const userRepository = AppDataSource.getRepository(User);
             const user = await userRepository.findOne(
                 { 
-                    where: {username: loginByUsername.username}, select: ['username', "password", "is_active", "is_staff"]}
+                    where: {username: loginByUsername.username}, select: ['username', "password", "is_active", "is_staff", "is_artist"]}
                 ) ;
             const hashPassword = funcCreateHashPassword(loginByUsername.password);
             const isMatch = user.password === hashPassword
@@ -402,7 +405,7 @@ userAuthRouter.post(
                 return res.status(400).json({message: "username or password is invalid"})
             }
             // check user is_active
-            if (user.is_active === false) {
+            if (!user.is_active) {
                 return res.status(400).json(
                     {
                         message: "your account is bend!",
@@ -419,7 +422,8 @@ userAuthRouter.post(
                     "status": "success",
                     access_token: token['accessToken'],
                     refresh_token: token['refreshToken'],
-                    is_staff: user.is_staff
+                    is_staff: user.is_staff,
+                    isArtist: user.is_artist
                 }
             )
         } catch (error) {
@@ -455,7 +459,7 @@ userAuthRouter.post(
             const getUser = await userRepository.findOne(
                 {
                     where: {email: loginByEmail.email},
-                    select: ['email', "is_active", "password", 'is_staff']
+                    select: ['email', "is_active", "password", 'is_staff', "is_artist"]
                 }
             );
 
@@ -497,6 +501,7 @@ userAuthRouter.post(
                 access_token: token["accessToken"],
                 refresh_token: token['refreshToken'],
                 isAdmin: getUser.is_staff,
+                isArtist: getUser.is_artist
             });
 
         } catch (error) {
@@ -510,7 +515,7 @@ userAuthRouter.post(
     }
 );
 
-// request_login_by_otp_phone
+// request_otp_phone
 userAuthRouter.post(
     "/request_otp_phone/",
     notAuthenticateJwt,
@@ -521,29 +526,47 @@ userAuthRouter.post(
                 return res.status(400).json({message: "request body is required"})
             }
 
-            const { mobile_phone } = req.body;
             // validate data
-            if (!mobile_phone || !req.body) {
-                return res.status(400).json({message: "mobile_phone is required!"})
+            const requestOtpPhone = plainToClass(RequestOtpPhoneDto, req.body)
+            const error = await validate(requestOtpPhone)
+            if (error.length > 0) {
+                return res.status(400).json(
+                    {
+                        status: false,
+                        message: "Invalid Data",
+                        errors: error.map(
+                            err => (
+                                {
+                                    field: err.property,
+                                    value: err.constraints
+                                }
+                            )
+                        )
+                    }
+                );
             }
 
             // check user dose exits
             const userRepository = AppDataSource.getRepository(User);
-            const getUser = await userRepository.findOne({where: {mobile_phone: mobile_phone}})
+            const getUser = await userRepository.findOne(
+                {
+                    where: {mobile_phone: requestOtpPhone.mobile_phone},
+                    select: ['mobile_phone', "id", "is_active"]
+                }
+            )
             if (!getUser) {
                 return res.status(404).json({message: "user not found!"})
             }
-            if (getUser.is_active === false) {
+            if (!getUser.is_active) {
                 return res.status(403).json({message: "your account is ben!!"})
             }
 
             // generate otp code and send otp code
-            await sendOtp(mobile_phone, req)
-            const text = "code is send";
+            await sendOtp(requestOtpPhone.mobile_phone, req)
             return res.status(200).json(
                 {
                     status: "success",
-                    message: text
+                    message: "code send!"
                 }
             );
         } catch (error) {
@@ -554,7 +577,7 @@ userAuthRouter.post(
     }
 );
 
-// verify_login_by_otp_phone
+// verify_otp_phone
 userAuthRouter.post(
     "/verify_otp_phone/",
     notAuthenticateJwt,
@@ -565,19 +588,28 @@ userAuthRouter.post(
                 return res.status(400).json({message: "request body must be set"});
             }
 
-            // body
-            const { code, mobile_phone } = req.body;
-
             // validate data
-            if (!code) {
-                return res.status(400).json({message: "code is required"});
-            }
-            if (!mobile_phone) {
-                return res.status(400).json({message: "mobile phone is required"});
+            const verifyOtpPhone = plainToClass(VerifyOtpPhoneDto, req.body)
+            const errors = await validate(verifyOtpPhone);
+            if (errors.length > 0) {
+                return res.status(400).json(
+                    {
+                        status: false,
+                        message: "Invalid Data",
+                        error: errors.map(
+                            err => (
+                                {
+                                    field: err.property,
+                                    value: err.constraints
+                                }
+                            )
+                        )
+                    }
+                );
             }
 
             // check otp code
-            const checkOtpCode = await VerifyOtpRedis(code, req.ip)
+            const checkOtpCode = await VerifyOtpRedis(verifyOtpPhone.code, req.ip)
             // console.log(checkOtpCode);
             if (checkOtpCode === null) {
                 return res.status(404).json(
@@ -590,7 +622,12 @@ userAuthRouter.post(
 
             // get user and return token
             const userRepository = AppDataSource.getRepository(User);
-            const getUser = await userRepository.findOne({where: {mobile_phone: mobile_phone}})
+            const getUser = await userRepository.findOne(
+                {
+                    where: {mobile_phone: verifyOtpPhone.mobile_phone},
+                    select: ['id', 'mobile_phone', "is_active", "is_staff", "is_artist"]    
+                }
+                )
             if (!getUser) {
                 return res.status(404).json(
                     {
@@ -599,7 +636,7 @@ userAuthRouter.post(
                     }
                 );
             }
-            if (getUser.is_active === false) {
+            if (!getUser.is_active) {
                 return res.status(403).json(
                     {
                         status: false,
@@ -611,12 +648,19 @@ userAuthRouter.post(
             return res.status(200).json(
                 {
                     status: "success",
-                    token: token,
-                    isAdmin: getUser.is_staff
+                    access_token: token['accessToken'],
+                    refresh_token: token['refreshToken'],
+                    isAdmin: getUser.is_staff,
+                    isArtist: getUser.is_artist
                 }
             )
         } catch (error) {
-            return res.status(500).json({message: "server error"})   
+            return res.status(500).json(
+                {
+                    status: false,
+                    message: "server error"
+                }
+            )   
         }
     }
 );

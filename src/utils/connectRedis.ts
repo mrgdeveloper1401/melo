@@ -42,7 +42,7 @@ const disconnectRedis = async () => {
     }
 }
 
-export const VerifyOtpRedis = async (code: string, userIp: string) => {
+export const VerifyOtpRedis = async (code: number, userIp: string) => {
     if (isRedisConnected === false) {
         await connectRedis();
     }
