@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import dotenv from "dotenv"
 import path from "path";
+import bcrypt from "bcrypt";
 
 const envPath = path.resolve(process.cwd(), ".env");
 dotenv.config({path: envPath});
@@ -30,5 +31,20 @@ export const funcVerifyPassword = (password: string, storedHash: string): string
 
 
 // const hash = funcCreateHashPassword("1234")
+// const oldPassword = funcCreateHashPassword("1234")
 // console.log(hash);
+// console.log(oldPassword);
+
+// console.log(hash === oldPassword);
+
+// const checkPassword = async () => {
+//     const comparePassword = await bcrypt.compare(oldPassword, hash)
+//     return comparePassword
+// }
+// checkPassword().then(
+//     res => {
+//         console.log("res", res);
+//     }
+// )
+
 // console.log(funcVerifyPassword("1234", hash));

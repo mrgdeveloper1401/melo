@@ -328,6 +328,7 @@ userAuthRouter.post(
             const createUser = new User();
             createUser.username = signupUserDto.username;
             createUser.email = signupUserDto.email;
+            createUser.is_artist = signupUserDto.is_artist;
             createUser.password = hashPassword;
             await createUser.save()
 
@@ -940,10 +941,10 @@ userAuthRouter.post(
     funcCheckUserActive,
     async (req: Request, res: Response) => {
         try {
-            if (req.body == null) {
+            if (!req.body) {
                 return res.status(400).json(
                     {
-                        message: "you must be send json data"
+                        message: "request body is required"
                     }
                 )
             }
@@ -979,10 +980,7 @@ userAuthRouter.post(
 
             // check old password
             const hashOldPassword = funcCreateHashPassword(resetPasswordDto.old_password)
-            const isOldPasswordValid = await bcrypt.compare(
-                hashOldPassword,
-                user.password
-            );
+            const isOldPasswordValid = hashOldPassword === user.password
             if (!isOldPasswordValid) {
                 return res.status(400).json(
                     {
@@ -1001,6 +999,16 @@ userAuthRouter.post(
                     }
                 )
             }
+
+            // save new password
+            user.password = resetPasswordDto.new_password;
+            await user.save();
+            return res.status(200).json(
+                {
+                    status: "success",
+                    message: "change password successfully"
+                }
+            );
         } catch (error) {
             return res.status(500).json(
                 {
