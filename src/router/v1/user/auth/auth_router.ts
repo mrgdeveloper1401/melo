@@ -23,6 +23,7 @@ import { RequestOtpPhoneDto } from "../../../../dtos/auth/RequestOtpPhone";
 import { VerifyOtpPhoneDto } from "../../../../dtos/auth/VerifyOtpPhone";
 import { UserNotification } from "../../../../entity/UserNotification";
 import { confirmForgetPasswordDto } from "../../../../dtos/auth/ConfirmForgetPassword";
+import { requestEmailDto } from "../../../../dtos/auth/RequestEmail";
 
 const userAuthRouter = express.Router()
 
@@ -36,8 +37,7 @@ const userAuthRouter = express.Router()
  *       Generate a new access token by providing a valid refresh token.
  *       The refresh token must not be blocked and must be of type 'refresh'.
  *     tags:
- *       - Authentication
- *       - JWT
+ *       - jwt
  *     requestBody:
  *       required: true
  *       content:
@@ -251,6 +251,108 @@ userAuthRouter.post(
 })
 
 // token block
+/**
+ * @swagger
+ * /v1/auth/user/token_block:
+ *   post:
+ *     summary: block refresh_token
+ *     description: for block refresh_token use this endpoint
+ *     tags:
+ *       - jwt
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/TokenBlockDto'
+ *           example:
+ *             refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *     responses:
+ *       201:
+ *         description: توکن با موفقیت بلاک شد
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "block token successfully"
+ *       400:
+ *         description: خطای درخواست
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                 errors:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       field:
+ *                         type: string
+ *                       value:
+ *                         type: object
+ *             examples:
+ *               invalidBody:
+ *                 value:
+ *                   status: false
+ *                   message: "request body is required"
+ *               invalidData:
+ *                 value:
+ *                   status: false
+ *                   message: "Invalid Data"
+ *                   errors:
+ *                     - field: "refresh_token"
+ *                       value: { isString: "refresh_token must be a string" }
+ *               invalidTokenType:
+ *                 value:
+ *                   status: false
+ *                   message: "Invalid Token Type!"
+ *               tokenExists:
+ *                 value:
+ *                   status: false
+ *                   message: "token already exists"
+ *       404:
+ *         description: کلید احراز هویت یافت نشد
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *             example:
+ *               status: false
+ *               message: "REFRESH_JWT_SECRET_KEY is not found in .env file"
+ *       500:
+ *         description: خطای سرور
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *             example:
+ *               status: false
+ *               message: "server error"
+ */
 userAuthRouter.post(
     "/token_block/",
     async (req: Request, res: Response) => {
@@ -359,6 +461,105 @@ userAuthRouter.post(
 );
 
 // create user
+/**
+ * @swagger
+ * /v1/auth/user/signup:
+ *   post:
+ *     summary: ثبت‌نام کاربر جدید
+ *     description: |
+ *       این endpoint برای ایجاد حساب کاربری جدید استفاده می‌شود.
+ *       نام کاربری و ایمیل باید منحصر به فرد باشند.
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/SignUpUserDto'
+ *           example:
+ *             email: "user@example.com"
+ *             password: "Password123!"
+ *             username: "john_doe"
+ *             is_artist: true
+ *     responses:
+ *       201:
+ *         description: کاربر با موفقیت ایجاد شد
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 accessToken:
+ *                   type: string
+ *                   description: توکن دسترسی
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                 refreshToken:
+ *                   type: string
+ *                   description: توکن رفرش
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                 isAdmin:
+ *                   type: boolean
+ *                   description: آیا کاربر ادمین است؟
+ *                   example: false
+ *                 isArtist:
+ *                   type: boolean
+ *                   description: آیا کاربر هنرمند است؟
+ *                   example: true
+ *       400:
+ *         description: خطای اعتبارسنجی یا داده تکراری
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                 errors:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       field:
+ *                         type: string
+ *                       constraints:
+ *                         type: object
+ *             examples:
+ *               validationError:
+ *                 value:
+ *                   status: false
+ *                   message: "Validation Field"
+ *                   errors:
+ *                     - field: "email"
+ *                       constraints: { isEmail: "email must be an email" }
+ *               usernameExists:
+ *                 value:
+ *                   message: "username already exists"
+ *               emailExists:
+ *                 value:
+ *                   message: "email is already exists"
+ *       500:
+ *         description: خطای سرور
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *             example:
+ *               status: false
+ *               message: "server error"
+ */
 userAuthRouter.post(
     "/signup/",
     notAuthenticateJwt,
@@ -444,6 +645,109 @@ userAuthRouter.post(
 );
 
 // login_by_username
+/**
+ * @swagger
+ * /v1/auth/user/login_by_username:
+ *   post:
+ *     summary: ورود به سیستم با نام کاربری
+ *     description: |
+ *       این endpoint برای ورود کاربر به سیستم با استفاده از نام کاربری و رمز عبور استفاده می‌شود.
+ *       در صورت موفقیت، توکن دسترسی و توکن رفرش بازگردانده می‌شود.
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/LoginUsernameDto'
+ *           example:
+ *             username: "john_doe"
+ *             password: "Password123!"
+ *     responses:
+ *       200:
+ *         description: ورود موفقیت‌آمیز
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 access_token:
+ *                   type: string
+ *                   description: توکن دسترسی (JWT)
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                 refresh_token:
+ *                   type: string
+ *                   description: توکن رفرش (JWT)
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                 is_staff:
+ *                   type: boolean
+ *                   description: آیا کاربر مدیر است؟
+ *                   example: false
+ *                 isArtist:
+ *                   type: boolean
+ *                   description: آیا کاربر هنرمند است؟
+ *                   example: true
+ *       400:
+ *         description: خطای درخواست
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                 errors:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       field:
+ *                         type: string
+ *                       value:
+ *                         type: object
+ *             examples:
+ *               invalidBody:
+ *                 value:
+ *                   message: "request body is required"
+ *               invalidData:
+ *                 value:
+ *                   status: false
+ *                   message: "Invalid Data"
+ *                   errors:
+ *                     - field: "username"
+ *                       value: { isString: "username must be a string" }
+ *               invalidCredentials:
+ *                 value:
+ *                   message: "username or password is invalid"
+ *               accountBanned:
+ *                 value:
+ *                   message: "your account is bend!"
+ *                   status: false
+ *       500:
+ *         description: خطای سرور داخلی
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 status:
+ *                   type: string
+ *                 error:
+ *                   type: object
+ *             example:
+ *               message: "server error"
+ *               status: "false"
+ *               error: {}
+ */
 userAuthRouter.post(
     "/login_by_username/",
     notAuthenticateJwt,
@@ -526,6 +830,118 @@ userAuthRouter.post(
 );
 
 // login_by_email
+/**
+ * @swagger
+ * /v1/auth/user/login_by_email:
+ *   post:
+ *     summary: ورود به سیستم با ایمیل
+ *     description: |
+ *       این endpoint برای ورود کاربر به سیستم با استفاده از ایمیل و رمز عبور استفاده می‌شود.
+ *       در صورت موفقیت، توکن دسترسی و توکن رفرش بازگردانده می‌شود.
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/LoginByEmailDto'
+ *           example:
+ *             email: "user@example.com"
+ *             password: "Password123!"
+ *     responses:
+ *       200:
+ *         description: ورود موفقیت‌آمیز
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: true
+ *                 access_token:
+ *                   type: string
+ *                   description: توکن دسترسی (JWT)
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                 refresh_token:
+ *                   type: string
+ *                   description: توکن رفرش (JWT)
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                 isAdmin:
+ *                   type: boolean
+ *                   description: آیا کاربر مدیر است؟
+ *                   example: false
+ *                 isArtist:
+ *                   type: boolean
+ *                   description: آیا کاربر هنرمند است؟
+ *                   example: true
+ *       400:
+ *         description: خطای درخواست - ایمیل یا رمز عبور نامعتبر
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *             examples:
+ *               invalidBody:
+ *                 value:
+ *                   message: "request body is required"
+ *               invalidCredentials:
+ *                 value:
+ *                   status: false
+ *                   message: "invalid email or password"
+ *       403:
+ *         description: حساب کاربری مسدود شده است
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *             example:
+ *               status: false
+ *               message: "your account is ben!"
+ *       404:
+ *         description: کاربر یافت نشد
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *             example:
+ *               status: false
+ *               message: "invalid email or password"
+ *       500:
+ *         description: خطای سرور داخلی
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *             example:
+ *               status: false
+ *               message: "server error"
+ */
 userAuthRouter.post(
     "/login_by_email/",
     notAuthenticateJwt,
@@ -602,6 +1018,108 @@ userAuthRouter.post(
 );
 
 // request_otp_phone
+/**
+ * @swagger
+ * /v1/auth/user/request_otp_phone:
+ *   post:
+ *     summary: درخواست کد OTP برای تلفن همراه
+ *     description: |
+ *       این endpoint برای ارسال کد تأیید (OTP) به شماره تلفن همراه کاربر استفاده می‌شود.
+ *       کاربر باید وجود داشته باشد و حسابش فعال باشد.
+ *     tags:
+ *       - Authentication
+ *       - OTP
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/RequestOtpPhoneDto'
+ *           example:
+ *             mobile_phone: "09123456789"
+ *     responses:
+ *       200:
+ *         description: کد OTP با موفقیت ارسال شد
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "code send!"
+ *       400:
+ *         description: خطای اعتبارسنجی داده‌ها
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                 errors:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       field:
+ *                         type: string
+ *                       value:
+ *                         type: object
+ *             examples:
+ *               invalidBody:
+ *                 value:
+ *                   message: "request body is required"
+ *               validationError:
+ *                 value:
+ *                   status: false
+ *                   message: "Invalid Data"
+ *                   errors:
+ *                     - field: "mobile_phone"
+ *                       value: { isString: "mobile_phone must be a string" }
+ *       403:
+ *         description: حساب کاربری مسدود شده است
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "your account is ben!!"
+ *       404:
+ *         description: کاربر یافت نشد
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "user not found!"
+ *       500:
+ *         description: خطای سرور داخلی
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 error:
+ *                   type: object
+ *             example:
+ *               message: "server error"
+ *               error: {}
+ */
 userAuthRouter.post(
     "/request_otp_phone/",
     notAuthenticateJwt,
@@ -663,6 +1181,139 @@ userAuthRouter.post(
 );
 
 // verify_otp_phone
+/**
+ * @swagger
+ * /v1/auth/user/verify_otp_phone:
+ *   post:
+ *     summary: تأیید کد OTP تلفن همراه
+ *     description: |
+ *       این endpoint برای تأیید کد OTP ارسال شده به تلفن همراه کاربر استفاده می‌شود.
+ *       در صورت موفقیت، توکن دسترسی و توکن رفرش بازگردانده می‌شود.
+ *     tags:
+ *       - Authentication
+ *       - OTP
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/VerifyOtpPhoneDto'
+ *           example:
+ *             mobile_phone: "09123456789"
+ *             code: 123456
+ *     responses:
+ *       200:
+ *         description: تأیید موفقیت‌آمیز و بازگشت توکن‌ها
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 access_token:
+ *                   type: string
+ *                   description: توکن دسترسی (JWT)
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                 refresh_token:
+ *                   type: string
+ *                   description: توکن رفرش (JWT)
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                 isAdmin:
+ *                   type: boolean
+ *                   description: آیا کاربر مدیر است؟
+ *                   example: false
+ *                 isArtist:
+ *                   type: boolean
+ *                   description: آیا کاربر هنرمند است؟
+ *                   example: true
+ *       400:
+ *         description: خطای اعتبارسنجی داده‌ها
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                 error:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       field:
+ *                         type: string
+ *                       value:
+ *                         type: object
+ *             examples:
+ *               invalidBody:
+ *                 value:
+ *                   message: "request body must be set"
+ *               validationError:
+ *                 value:
+ *                   status: false
+ *                   message: "Invalid Data"
+ *                   error:
+ *                     - field: "mobile_phone"
+ *                       value: { isString: "mobile_phone must be a string" }
+ *                     - field: "code"
+ *                       value: { isNumber: "code must be a number" }
+ *       403:
+ *         description: حساب کاربری مسدود شده است
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *             example:
+ *               status: false
+ *               message: "your account is ben!"
+ *       404:
+ *         description: کد OTP نامعتبر یا کاربر یافت نشد
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *             examples:
+ *               invalidOtp:
+ *                 value:
+ *                   status: false
+ *                   message: "code is invalid"
+ *               userNotFound:
+ *                 value:
+ *                   status: false
+ *                   message: "user not found"
+ *       500:
+ *         description: خطای سرور داخلی
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *             example:
+ *               status: false
+ *               message: "server error"
+ */
 userAuthRouter.post(
     "/verify_otp_phone/",
     notAuthenticateJwt,
@@ -751,6 +1402,115 @@ userAuthRouter.post(
 );
 
 // send request otp into email
+/**
+ * @swagger
+ * /v1/auth/user/request_login_by_otp_email:
+ *   post:
+ *     summary: درخواست کد OTP برای ورود با ایمیل
+ *     description: |
+ *       این endpoint برای ارسال کد تأیید (OTP) به ایمیل کاربر برای ورود به سیستم استفاده می‌شود.
+ *       کاربر باید وجود داشته باشد و حسابش فعال باشد.
+ *     tags:
+ *       - Authentication
+ *       - OTP
+ *       - Email
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/RequestEmailDto'
+ *           example:
+ *             email: "user@example.com"
+ *     responses:
+ *       200:
+ *         description: کد OTP با موفقیت ارسال شد
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "OTP code sent successfully"
+ *       400:
+ *         description: خطای اعتبارسنجی داده‌ها
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                 error:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       field:
+ *                         type: string
+ *                       value:
+ *                         type: object
+ *             examples:
+ *               invalidBody:
+ *                 value:
+ *                   message: "request body must be set"
+ *               validationError:
+ *                 value:
+ *                   status: false
+ *                   message: "Invalid Data"
+ *                   error:
+ *                     - field: "email"
+ *                       value: { isEmail: "email must be an email" }
+ *       403:
+ *         description: حساب کاربری مسدود شده است
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 status:
+ *                   type: boolean
+ *             example:
+ *               message: "your account is ben!"
+ *               status: false
+ *       404:
+ *         description: کاربر یافت نشد
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 status:
+ *                   type: boolean
+ *             example:
+ *               message: "user not found"
+ *               status: false
+ *       500:
+ *         description: خطای سرور داخلی
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 status:
+ *                   type: boolean
+ *             example:
+ *               message: "server error"
+ *               status: false
+ */
 userAuthRouter.post(
     "/request_login_by_otp_email/",
     notAuthenticateJwt,
@@ -761,13 +1521,27 @@ userAuthRouter.post(
         }
 
         // validate data
-        const { email } = req.body;
-        if (!req.body) {
-            return res.status(400).json({message: "email is required"});
+        const requestEmail = plainToClass(requestEmailDto, req.body);
+        const errors = await validate(requestEmail);
+        if (errors.length > 0) {
+            return res.status(400).json(
+                {
+                    status: false,
+                    message: "Invalid Data",
+                    error: errors.map(
+                        err => (
+                            {
+                                field: err.property,
+                                value: err.constraints
+                            }
+                        )
+                    )
+                }
+            );
         }
 
         const userRepository = AppDataSource.getRepository(User);
-        const getUser = await userRepository.findOne({where: {email: email}});
+        const getUser = await userRepository.findOne({where: {email: requestEmail.email}});
 
         if (!getUser) {
             return res.status(404).json(
@@ -788,207 +1562,6 @@ userAuthRouter.post(
     }
 );
 
-// // user
-// userAuthRouter.get(
-//     "/user/",
-//     authenticateJWT,
-//     async (req: Request, res: Response) => {
-//         try {
-//             const user = (req as any).user;
-//             const userId = user.user_id;
-            
-//             // get and validate user
-//             const userRepository = AppDataSource.getRepository(User);
-//             const getUser = await userRepository.findOne({where: {id: userId}})
-//             if (!getUser) {
-//                 return res.status(404).json(
-//                     {
-//                         status: false,
-//                         message: "user not found"
-//                     }
-//                 );
-//             }
-//             if (getUser.is_active === false) {
-//                 return res.status(403).json(
-//                     {
-//                         status: false,
-//                         message: "your account is ben!"
-//                     }
-//                 );
-//             }
-
-//             const { password, is_staff, is_superuser, is_active, ...userProfile } = getUser;
-//             return res.status(200).json(
-//                 {
-//                     status: "success",
-//                     data: userProfile 
-//                 }
-//             );
-//         } catch (error) {
-//             return res.status(500).json(
-//                 {
-//                     status: false,
-//                     error: error
-//                 }
-//             );
-//         }
-//     }
-// );
-
-// detail user
-// userAuthRouter.get(
-//     "/user/:id/",
-//     authenticateJWT,
-//         async (req: Request, res: Response) => {
-//             try {
-//                 const { id } = req.params;
-                
-//                 const userRepository = AppDataSource.getRepository(User);
-//                 const getUser = await userRepository.findOne({where: {id: Number(id)}});
-
-//                 if (!getUser) {
-//                     return res.status(404).json(
-//                         {
-//                             status: false,
-//                             message: "user not found"
-//                         }
-//                     );
-//                 }
-//                 if (getUser.is_active === false) {
-//                     return res.status(403).json(
-//                         {
-//                             status: false,
-//                             message: "your account is ben!"
-//                         }
-//                     );
-//                 }
-//                 if (getUser.id !== (req as any).user.user_id || getUser.is_public === false) {
-//                     return res.status(403).json(
-//                         {
-//                             status: false,
-//                             message: "you dot not have permission"
-//                         }
-//                     )
-//                 }
-//                 const { password, is_staff, is_superuser, is_active, ...userProfile } = getUser;
-//                 return res.status(200).json(
-//                     {
-//                         status: "success",
-//                         data: userProfile
-//                     }
-//                 );
-//             } catch (error) {
-//                 return res.status(500).json(
-//                     {
-//                         status: false,
-//                         message: error
-//                     }
-//                 );
-//             }
-//     }
-// );
-
-// update user
-// userAuthRouter.patch(
-//     "/user/:id/",
-//     authenticateJWT,
-//         async (req: Request, res: Response) => {
-//             try {
-//                 const { id } = req.params;
-//                 const userRepository = AppDataSource.getRepository(User);
-                
-//                 // get user query
-//                 const user = await userRepository.findOne(
-//                     {
-//                         where: {id: Number(id)}
-//                     }
-//                 );
-
-//                 // check user
-//                 if (!user) {
-//                     return res.status(404).json(
-//                         {
-//                             status: false,
-//                             message: "user not found"
-//                         }
-//                     );
-//                 }
-//                 if (user.is_active === false) {
-//                     return res.status(403).json(
-//                         {
-//                             status: false,
-//                             message: "your account is ben!"
-//                         }
-//                     );
-//                 }
-//                 if (user.id !== (req as any).user.user_id) {
-//                     return res.status(403).json(
-//                         {
-//                             status: false,
-//                             message: "you do not have permission "
-//                         }
-//                     );
-//                 }
-
-//                 // if request body is None
-//                 if (req.body == null) {
-//                     const { password, is_staff, is_superuser, is_active, ...userProfile } = user;
-//                     return res.status(200).json(
-//                         {
-//                             status: "success",
-//                             data: userProfile
-//                         }
-//                     )
-//                 }
-
-//                 // update field
-//                 const updateField = [
-//                     "mobile_phone",
-//                     "username",
-//                     "email",
-//                     "is_public",
-//                     "is_artist"
-//                 ]               
-
-//                 updateField.forEach(field => {
-//                     if (req.body[field] !== undefined) {
-//                         (user as any)[field] = req.body[field];
-//                     }
-//                 });
-//                 const error = await validate(user);
-//                 if (error.length > 0) {
-//                     return res.status(400).json(
-//                         {
-//                             status: false,
-//                             message: "Validation Field",
-//                             error: error.map(
-//                                 err => (
-//                                     {
-//                                         field: Object.keys(err.constraints || {}),
-//                                         message: Object.values(err.constraints || {})
-//                                     }
-//                                 )
-//                             )
-//                         }
-//                     );
-//                 }
-
-//                 // save the update user
-//                 const updateUser = await userRepository.save(user)
-//                 // Remove sensitive fields from response
-//                 const { password, is_staff, is_superuser, is_active, ...updateAuthUser } = updateUser;
-
-//                 return res.status(200).json(
-//                     {
-//                         status: "success",
-//                         data: updateAuthUser
-//                     }
-//                 );
-//             } catch (error) {
-                
-//             }
-//     }
-// );
 
 // get profile
 userAuthRouter.get(
@@ -1093,6 +1666,125 @@ userAuthRouter.patch(
 );
 
 // reset password
+/**
+ * @swagger
+ * /v1/auth/user/reset_password:
+ *   post:
+ *     summary: تغییر رمز عبور کاربر
+ *     description: |
+ *       این endpoint برای تغییر رمز عبور کاربر استفاده می‌شود.
+ *       کاربر باید لاگین کرده باشد و رمز عبور قبلی را صحیح وارد کند.
+ *       رمز عبور جدید و تأیید آن باید یکسان باشند.
+ *     tags:
+ *       - Authentication
+ *       - User Management
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ResetPasswordDto'
+ *           example:
+ *             old_password: "OldPassword123!"
+ *             new_password: "NewPassword456!"
+ *             confirm_password: "NewPassword456!"
+ *     responses:
+ *       200:
+ *         description: رمز عبور با موفقیت تغییر کرد
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "change password successfully"
+ *       400:
+ *         description: خطای درخواست
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                 errors:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       field:
+ *                         type: string
+ *                       constraints:
+ *                         type: object
+ *             examples:
+ *               invalidBody:
+ *                 value:
+ *                   message: "request body is required"
+ *               validationError:
+ *                 value:
+ *                   status: false
+ *                   message: "Validation Field"
+ *                   errors:
+ *                     - field: "old_password"
+ *                       constraints: { isString: "old_password must be a string", isNotEmpty: "old_password should not be empty" }
+ *               wrongOldPassword:
+ *                 value:
+ *                   status: false
+ *                   message: "old password is wrong"
+ *               passwordNotMatch:
+ *                 value:
+ *                   status: false
+ *                   message: "password not same"
+ *       401:
+ *         description: عدم احراز هویت
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Unauthorized"
+ *       403:
+ *         description: حساب کاربری غیرفعال است
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Account is deactivated"
+ *       500:
+ *         description: خطای سرور داخلی
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                 error:
+ *                   type: string
+ *             example:
+ *               status: false
+ *               message: "server error"
+ *               error: "Error message details"
+ */
 userAuthRouter.post(
     "/reset_password/",
     authenticateJWT,
@@ -1180,6 +1872,118 @@ userAuthRouter.post(
 );
 
 // user notification
+/**
+ * @swagger
+ * /v1/auth/user/notifications:
+ *   get:
+ *     summary: دریافت نوتیفیکیشن‌های کاربر
+ *     description: |
+ *       این endpoint برای دریافت لیست نوتیفیکیشن‌های کاربر با قابلیت صفحه‌بندی استفاده می‌شود.
+ *       کاربر باید لاگین کرده باشد.
+ *     tags:
+ *       - Notifications
+ *       - User Management
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: شماره صفحه برای صفحه‌بندی
+ *         example: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 20
+ *         description: تعداد آیتم‌ها در هر صفحه (حداکثر 100)
+ *         example: 20
+ *     responses:
+ *       200:
+ *         description: لیست نوتیفیکیشن‌ها با موفقیت بازگردانده شد
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       title:
+ *                         type: string
+ *                         description: عنوان نوتیفیکیشن
+ *                         example: "به روزرسانی جدید"
+ *                       body:
+ *                         type: string
+ *                         description: محتوای نوتیفیکیشن
+ *                         example: "یک به روزرسانی جدید برای اپلیکیشن موجود است"
+ *                       notification_redirect_url:
+ *                         type: string
+ *                         nullable: true
+ *                         description: URL جهت redirect نوتیفیکیشن
+ *                         example: "https://example.com/update"
+ *                       notification_type:
+ *                         type: string
+ *                         description: نوع نوتیفیکیشن
+ *                         example: "system_update"
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     currentPage:
+ *                       type: integer
+ *                       example: 1
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 5
+ *                     totalItem:
+ *                       type: integer
+ *                       example: 95
+ *                     itemPerPage:
+ *                       type: integer
+ *                       example: 20
+ *                     hasNext:
+ *                       type: boolean
+ *                       example: true
+ *                     hasPrev:
+ *                       type: boolean
+ *                       example: false
+ *       401:
+ *         description: عدم احراز هویت
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: "Unauthorized"
+ *       500:
+ *         description: خطای سرور داخلی
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *             example:
+ *               status: false
+ *               message: "server error"
+ */
 userAuthRouter.get(
     "/notifications/",
     authenticateJWT,
@@ -1234,8 +2038,140 @@ userAuthRouter.get(
     }
 );
 
-
 // verify change password
+/**
+ * @swagger
+ * /v1/auth/user/confirm_forget_password:
+ *   post:
+ *     summary: تأیید فراموشی رمز عبور و تنظیم رمز جدید
+ *     description: |
+ *       این endpoint برای تأیید کد OTP و تنظیم رمز عبور جدید پس از فراموشی رمز استفاده می‌شود.
+ *       کاربر نیازی به احراز هویت ندارد.
+ *     tags:
+ *       - Authentication
+ *       - Password Recovery
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ConfirmForgetPasswordDto'
+ *           example:
+ *             code: 123456
+ *             new_password: "NewPassword123!"
+ *             confirm_new_password: "NewPassword123!"
+ *             mobile_phone: "09123456789"
+ *     responses:
+ *       200:
+ *         description: رمز عبور با موفقیت تغییر کرد و توکن‌ها بازگردانده شدند
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "successfully change password"
+ *                 access_token:
+ *                   type: string
+ *                   description: توکن دسترسی جدید (JWT)
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                 refresh_token:
+ *                   type: string
+ *                   description: توکن رفرش جدید (JWT)
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *       400:
+ *         description: خطای اعتبارسنجی داده‌ها
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                 error:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       field:
+ *                         type: string
+ *                       value:
+ *                         type: object
+ *             examples:
+ *               invalidBody:
+ *                 value:
+ *                   status: false
+ *                   message: "request body must be not null"
+ *               validationError:
+ *                 value:
+ *                   status: false
+ *                   message: "Invalid Data"
+ *                   error:
+ *                     - field: "code"
+ *                       value: { isNumber: "code must be a number", isNotEmpty: "code should not be empty" }
+ *               passwordNotMatch:
+ *                 value:
+ *                   status: false
+ *                   message: "password must be same"
+ *       403:
+ *         description: حساب کاربری مسدود شده است
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *             example:
+ *               status: false
+ *               message: "your account is ben!"
+ *       404:
+ *         description: کد OTP نامعتبر یا کاربر یافت نشد
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *             examples:
+ *               invalidOtp:
+ *                 value:
+ *                   status: false
+ *                   message: "code is invalid"
+ *               userNotFound:
+ *                 value:
+ *                   status: false
+ *                   message: "user not found"
+ *       500:
+ *         description: خطای سرور داخلی
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *             example:
+ *               status: false
+ *               message: "server error"
+ */
 userAuthRouter.post(
     "/confirm_forget_password/",
     notAuthenticateJwt,
