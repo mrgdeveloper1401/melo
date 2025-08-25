@@ -27,6 +27,91 @@ import { confirmForgetPasswordDto } from "../../../../dtos/auth/ConfirmForgetPas
 const userAuthRouter = express.Router()
 
 // refresh router
+/**
+ * @swagger
+ * /v1/auth/user/refresh_token:
+ *   post:
+ *     summary: Create new access token using refresh token
+ *     description: |
+ *       Generate a new access token by providing a valid refresh token.
+ *       The refresh token must not be blocked and must be of type 'refresh'.
+ *     tags:
+ *       - Authentication
+ *       - JWT
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/RefreshTokenDto'
+ *           example:
+ *             refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *     responses:
+ *       201:
+ *         description: New access token generated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/RefreshTokenResponse'
+ *             example:
+ *               status: "success"
+ *               token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *       400:
+ *         description: Bad request - Invalid data or token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               invalidData:
+ *                 value:
+ *                   status: false
+ *                   message: "Invalid Data"
+ *                   errors:
+ *                     - field: "refresh_token"
+ *                       value: { isString: "refresh_token must be a string" }
+ *               invalidTokenType:
+ *                 value:
+ *                   status: false
+ *                   message: "Invalid token type"
+ *               tokenBlocked:
+ *                 value:
+ *                   status: false
+ *                   message: "this refresh_token blocked"
+ *       403:
+ *         description: Forbidden - Account is banned
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               status: false
+ *               message: "your account is ben!"
+ *       404:
+ *         description: Not found - User not found or secret key missing
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               userNotFound:
+ *                 value:
+ *                   status: false
+ *                   message: "user not found"
+ *               secretKeyMissing:
+ *                 value:
+ *                   status: false
+ *                   message: "JWT_SECRET_KEY is not found in .env file"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               status: false
+ *               message: "server error"
+ */
 userAuthRouter.post(
     "/refresh_token",
     async (req: Request, res: Response) => {

@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import { userAuthRouter } from "./router/v1/user/auth/auth_router";
 import bodyParser from "body-parser";
 import { followRouter } from "./router/v1/user/follow/follow_routers";
+import swaggerDocs from "./config/swagger";
 
 dotenv.config()
 
@@ -33,5 +34,8 @@ AppDataSource.initialize().then(() => {
 
     // listen
     app.listen(port)
+
+    // swagger
+    swaggerDocs(app, port);
 
 }).catch(error => console.log(error))

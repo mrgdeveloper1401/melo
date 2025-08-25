@@ -13,14 +13,13 @@ followRouter.get(
     async (req: Request, res: Response) => {
         // get data and pagination
         try {
+            console.log((req as any).user.user_id);
             const followRepository = AppDataSource.getRepository(Follow);
             const [follow, totalCount] = await followRepository.findAndCount(
                 {
-                    where: {from_user: (req as any).user.user_id},
-                    select: {
-                        to_user: true,
-                        createdAt: true
-                    }
+                    where: {from_user: {id: (req as any).user.user_id}},
+                    relations: ["to_user.profile.profile_image"],
+                    select: ['to_user',]
                 }
             )
             return res.status(200).json(

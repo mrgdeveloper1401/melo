@@ -1,7 +1,6 @@
 import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { TimestampEntity } from "./Abstract";
 import { User } from "./User";
-import { v4 as uuidV4} from "uuid"
 
 @Entity()
 export class TokenBlock extends TimestampEntity {
