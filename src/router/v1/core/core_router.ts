@@ -11,6 +11,9 @@ export const coreRouter = express.Router();
  * /v1/auth/user/confirm_forget_password:
  *  get:
  *      summary: all public notification
+ *      description: this api show all data public notification
+ *      tags:
+ *          Notifications 
  */
 coreRouter.get(
     "/public_notifications/",

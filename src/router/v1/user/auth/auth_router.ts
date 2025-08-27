@@ -1677,7 +1677,6 @@ userAuthRouter.patch(
  *       رمز عبور جدید و تأیید آن باید یکسان باشند.
  *     tags:
  *       - Authentication
- *       - User Management
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -1882,7 +1881,6 @@ userAuthRouter.post(
  *       کاربر باید لاگین کرده باشد.
  *     tags:
  *       - Notifications
- *       - User Management
  *     security:
  *       - bearerAuth: []
  *     parameters:
