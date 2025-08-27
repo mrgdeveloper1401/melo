@@ -8,7 +8,7 @@ import { funcCreateToken } from "../../../../utils/createJwtToken";
 import { authenticateJWT, notAuthenticateJwt } from "../../../../middlewares/authenticate";
 import { sendOtp } from "../../../../utils/sendOtpSmsIr";
 import { VerifyOtpRedis } from "../../../../utils/connectRedis";
-import { validate } from "class-validator";
+import { length, validate } from "class-validator";
 import { Profile } from "../../../../entity/Profile";
 import { funcCheckUserActive } from "../../../../middlewares/checkUserActive";
 import { ResetPasswordDto } from "../../../../dtos/auth/ResetPassword.dto";
@@ -24,6 +24,8 @@ import { VerifyOtpPhoneDto } from "../../../../dtos/auth/VerifyOtpPhone";
 import { UserNotification } from "../../../../entity/UserNotification";
 import { confirmForgetPasswordDto } from "../../../../dtos/auth/ConfirmForgetPassword";
 import { requestEmailDto } from "../../../../dtos/auth/RequestEmail";
+import { ProfileDto } from "../../../../dtos/auth/ProfileDto";
+import { error } from "console";
 
 const userAuthRouter = express.Router()
 
@@ -1644,21 +1646,98 @@ userAuthRouter.get(
 
 // update profile
 userAuthRouter.patch(
-    "/profile/:id",
+    "/profile/",
     authenticateJWT,
     funcCheckUserActive,
     async (req: Request, res: Response) => {
         try {
+            // check json
+            if (!req.body) {
+                return res.status(400).json(
+                    {
+                        status: false,
+                        message: "request body is required"
+                    }
+                );
+            }
+
+            // get user_id by authenticate jwt
+            const userId = (req as any).user_id;
+            
+            // get repo and user profile
+            const profileRepository = AppDataSource.getRepository(Profile);
+            const getProfile = await profileRepository.findOne(
+                {
+                    where: {user: userId},
+                    select: ['id', 'user', "first_name", "last_name", "bio", "social", "jobs"]
+                }
+            );
+
+            // check profile
+            if (!getProfile) {
+                return res.status(404).json(
+                    {
+                        status: false,
+                        message: "profile not found"
+                    }
+                );
+            }
+
+            // get data on request body abd validate data
+            const profileDto = plainToClass(ProfileDto, req.body);
+            const errors = await validate(profileDto);
+            if (errors.length > 0) {
+                return res.status(400).json(
+                    {
+                        status: false,
+                        message: "Invalid Data",
+                        error: errors.map(
+                            error => (
+                                {
+                                    field: error.constraints,
+                                    value: error.constraints
+                                }
+                            )
+                        )
+                    }
+                );
+            }
+            
+            // update profile
+            const allowedFields = ["first_name", "last_name", "bio", "birth_date", "jobs", "social"];
+            Object.keys(req.body).forEach((key) => {
+                if (allowedFields.includes(key)) {
+                    if (key === "birth_data" && req.body[key]) {
+                        getProfile[key] = new Date(req.body[key]);
+                    } else if (req.body[key] !== undefined && req.body[key] !== null)
+                        getProfile[key] = req.body[key];
+                }
+            })
+
+            // save profile
+            await profileRepository.save(getProfile);
+    
+            // return data
             return res.status(200).json(
                 {
-                    status: "success"
+                    status: "success",
+                    message: "ok",
+                    data: {
+                        first_name: getProfile.first_name,
+                        last_name: getProfile.last_name,
+                        bio: getProfile.bio,
+                        jobs: getProfile.jobs,
+                        social: getProfile.social,
+                        birth_data: getProfile.birth_date
+                    }
                 }
-            )
+            );
         } catch (error) {
             return res.status(500).json(
                 {
                     status: false,
-                    message: "server error"
+                    message: "server error",
+                    errors: error
                 }
             );
         }
