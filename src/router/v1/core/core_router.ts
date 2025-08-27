@@ -6,7 +6,12 @@ import { Request, Response } from "express";
 
 export const coreRouter = express.Router();
 
-
+/**
+ * @swagger
+ * /v1/auth/user/confirm_forget_password:
+ *  get:
+ *      summary: all public notification
+ */
 coreRouter.get(
     "/public_notifications/",
     async (req: Request, res: Response) => {
@@ -20,7 +25,8 @@ coreRouter.get(
                 {
                     where: {is_active: true},
                     take: limit || 20,
-                    skip: skip
+                    skip: skip,
+                    select: ['id', "title", "notification_redirect_url", "notification_type", "createdAt"]
                 }
             )
             return res.status(200).json(
@@ -40,6 +46,38 @@ coreRouter.get(
                     message: "server error"
                 }
             )
+        }
+    }
+)
+
+
+coreRouter.get(
+    "/public_notifications/:id",
+    async (req: Request, res: Response) => {
+        try {
+            const publicNotificationRepository = AppDataSource.getRepository(PublicNotification);
+            const getPublicNotification = await publicNotificationRepository.findOne(
+                {
+                    where: {
+                        is_active: true,
+                        id: Number(req.params.id),
+                    },
+                    select: ['id', "body", "notification_redirect_url", "title", "notification_type", "createdAt"]
+                }
+            )
+            return res.status(200).json(
+                {
+                    status: "success",
+                    data: getPublicNotification
+                }
+            )
+        } catch (error) {
+            return res.status(500).json(
+                {
+                    status: false,
+                    message: "server error"
+                }
+            )   
         }
     }
 )
