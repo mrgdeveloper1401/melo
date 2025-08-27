@@ -19,9 +19,7 @@ export class PublicNotification extends TimestampEntity{
   @Column()
   notification_type: string;
 
-  // @CreateDateColumn()
-  // createdAt: Date;
+  @Column({default: true})
+  is_active: boolean;
 
-  // @UpdateDateColumn()
-  // updatedAt: Date;
 }

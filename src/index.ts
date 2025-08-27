@@ -6,6 +6,7 @@ import { userAuthRouter } from "./router/v1/user/auth/auth_router";
 import bodyParser from "body-parser";
 import { followRouter } from "./router/v1/user/follow/follow_routers";
 import swaggerDocs from "./config/swagger";
+import { coreRouter } from "./router/v1/core/core_router";
 
 dotenv.config()
 
@@ -30,6 +31,10 @@ AppDataSource.initialize().then(() => {
     )
     app.use(
         "/v1/follow/user/", followRouter
+    )
+    app.use(
+        "/v1/core/user/notification/",
+        coreRouter
     )
 
     // listen
