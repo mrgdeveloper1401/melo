@@ -1669,7 +1669,27 @@ userAuthRouter.patch(
             const getProfile = await profileRepository.findOne(
                 {
                     where: {user: userId},
-                    select: ['id', 'user', "first_name", "last_name", "bio", "social", "jobs"]
+                    select: {
+                        id: true,
+                        first_name: true,
+                        last_name: true,
+                        jobs: true,
+                        social: true,
+                        bio: true,
+                        birth_date: true,
+                        profile_image: {
+                            id: true,
+                            image_path: true
+                        },
+                        banner_galery_image: {
+                            id: true,
+                            image_path: true
+                        },
+                        banner_image: {
+                            id: true,
+                            image_path: true
+                        }
+                    }
                 }
             );
 
@@ -1704,17 +1724,16 @@ userAuthRouter.patch(
             }
             
             // update profile
-            const allowedFields = ["first_name", "last_name", "bio", "birth_date", "jobs", "social"];
-            Object.keys(req.body).forEach((key) => {
-                if (allowedFields.includes(key)) {
-                    if (key === "birth_data" && req.body[key]) {
-                        getProfile[key] = new Date(req.body[key]);
-                    } else if (req.body[key] !== undefined && req.body[key] !== null)
-                        getProfile[key] = req.body[key];
+            const allowedFields = ['first_name', 'last_name', 'birth_date', 'bio', 'jobs', 'social'];
+            const updateData: Partial<Profile> = {};
+            Object.keys(req.body).forEach(
+                key => {
+                    if (allowedFields.includes(key) && req.body[key] !== undefined) {
+                        updateData[key] = req.body[key];
+                    }
                 }
-            })
-
-            // save profile
+            )
+            Object.assign(getProfile, updateData)
             await profileRepository.save(getProfile);
     
             // return data
@@ -1722,14 +1741,7 @@ userAuthRouter.patch(
                 {
                     status: "success",
                     message: "ok",
-                    data: {
-                        first_name: getProfile.first_name,
-                        last_name: getProfile.last_name,
-                        bio: getProfile.bio,
-                        jobs: getProfile.jobs,
-                        social: getProfile.social,
-                        birth_data: getProfile.birth_date
-                    }
+                    data: updateData
                 }
             );
         } catch (error) {
