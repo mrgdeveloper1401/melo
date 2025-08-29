@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, ManyToOne } from "typeorm";
 import { TimestampEntity } from "./Abstract";
 import { Profile } from "./Profile";
+import { User } from "./User";
 
 @Entity()
 export class Image extends TimestampEntity{
@@ -27,6 +28,10 @@ export class Image extends TimestampEntity{
 
   @Column({default: 0})
   size: number;
+
+  @ManyToOne(() => User, (image) => image.id, {onDelete: "RESTRICT", nullable: false})
+  @JoinColumn({name: "user_id"})
+  user: User;
 
   @OneToMany(
     () => Profile,

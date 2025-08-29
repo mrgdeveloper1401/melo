@@ -20,10 +20,10 @@ export class Profile extends TimestampEntity{
   @Column({ type: 'text', nullable: true })
   bio: string;
 
-  @Column('simple-array', { nullable: true })
+  @Column('varchar', {array: true, nullable: true })
   jobs: string[];
 
-  @Column('simple-array', { nullable: true })
+  @Column('varchar', {array: true, nullable: true })
   social: string[];
 
   @OneToOne(() => User, (user_id) => user_id.profile, {onDelete: "RESTRICT", nullable: false})

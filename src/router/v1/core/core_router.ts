@@ -2,6 +2,9 @@ import express from "express";
 import { AppDataSource } from "../../../data-source";
 import { PublicNotification } from "../../../entity/publicNotification";
 import { Request, Response } from "express";
+import multer from 'multer';
+import { upload } from "../../../utils/UploadFile";
+import { authenticateJWT } from "../../../middlewares/authenticate";
 
 
 export const coreRouter = express.Router();
@@ -265,3 +268,34 @@ coreRouter.get(
         }
     }
 )
+
+coreRouter.post(
+    "/upload_image/",
+    authenticateJWT,
+    upload.single("file"),
+    async (req: Request, res: Response) => {
+        try {
+            if (!req.file) {
+                return res.status(404).json(
+                    {
+                        status: false,
+                        message: "file not found!"
+                    }
+                )
+            }
+            return res.status(201).json(
+                {
+                    status: "success",
+                    message: `file ${req.file.path} with upload successfully`
+                }
+            )
+        } catch (error) {
+            return res.status(500).json(
+                {
+                    status: false,
+                    message: "server error"
+                }
+            )
+        }
+    }
+);

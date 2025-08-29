@@ -11,6 +11,7 @@ import { TimestampEntity } from "./Abstract";
 import { UserNotification } from "./UserNotification";
 import { IsEmail } from "class-validator";
 import { TokenBlock } from "./TokenBlock";
+import { Image } from "./Image";
 
 @Entity({name: "users"})
 export class User extends TimestampEntity{
@@ -53,6 +54,9 @@ export class User extends TimestampEntity{
     (notification) => notification.user
   )
   user_notifications_set: UserNotification[];
+
+  @OneToMany(() => Image, (image) => image.user)
+  user_image_set: Image[];
 
   @OneToMany(
     () => TokenBlock,

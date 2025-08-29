@@ -1669,6 +1669,7 @@ userAuthRouter.patch(
             const getProfile = await profileRepository.findOne(
                 {
                     where: {user: userId},
+                    relations: ["profile_image", "banner_image", "banner_galery_image"],
                     select: {
                         id: true,
                         first_name: true,
@@ -1726,14 +1727,22 @@ userAuthRouter.patch(
             // update profile
             const allowedFields = ['first_name', 'last_name', 'birth_date', 'bio', 'jobs', 'social'];
             const updateData: Partial<Profile> = {};
-            Object.keys(req.body).forEach(
-                key => {
+            Object.keys(req.body).forEach((key) => {
                     if (allowedFields.includes(key) && req.body[key] !== undefined) {
+                    // Handle jobs and social explicitly to ensure array format
+                    if (key === "jobs" || key === "social") {
+                        if (Array.isArray(req.body[key]) && req.body[key].every((item: any) => typeof item === "string")) {
+                        updateData[key] = req.body[key];
+                        } else {
+                        updateData[key] = getProfile[key]; // Retain existing value if invalid
+                        }
+                    } else {
                         updateData[key] = req.body[key];
                     }
-                }
-            )
+                    }
+                });
             Object.assign(getProfile, updateData)
+
             await profileRepository.save(getProfile);
     
             // return data
