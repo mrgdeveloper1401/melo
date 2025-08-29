@@ -2,17 +2,17 @@ import express from "express";
 import { AppDataSource } from "../../../data-source";
 import { PublicNotification } from "../../../entity/publicNotification";
 import { Request, Response } from "express";
-import multer from 'multer';
-import { upload } from "../../../utils/UploadFile";
 import { authenticateJWT } from "../../../middlewares/authenticate";
 import { Image } from "../../../entity/Image";
 import path from "path";
+import fs from "fs";
+import { PutObjectCommand, PutObjectCommandInput } from "@aws-sdk/client-s3";
+import { s3ClientConfig, upload } from "../../../utils/amazon_s3/S3Config";
 
 
 export const coreRouter = express.Router();
 
 // all public notification
-
 /**
  * @swagger
  * /v1/core/user/notification/public_notifications:
@@ -277,22 +277,41 @@ coreRouter.post(
     upload.single("file"),
     async (req: Request, res: Response) => {
         try {
+            // validate data
             if (!req.file) {
-                return res.status(404).json(
+                return res.status(400).json(
                     {
                         status: false,
-                        message: "file not found!"
+                        message: "file unload not found"
                     }
-                )
+                );
             }
-            
+
+            // read file on disk
+            const fileContent = fs.readFileSync(req.file.path);
+            const userId = (req as any).user.user_id;
+            const params: PutObjectCommandInput = {
+                ACL: "public-read",
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: `uploads/${userId}/${req.file.filename}.${req.file.mimetype.split('image/')[1]}`,
+                Body: fileContent,
+                ContentType: req.file.mimetype,
+
+            }
+
+            // upload in s3
+            const command = new PutObjectCommand(params);
+            await s3ClientConfig.send(command);
+
+            // remove file in memory
+            fs.unlinkSync(req.file.path);
+
             // save on database
-            const userId = (req as any).user.user_id; // get user on request
             const file = req.file; // get file
             const imageRepository = AppDataSource.getRepository(Image);
             const newImage = new Image();
             newImage.file_name = file.originalname;
-            newImage.image_path = file.path;
+            newImage.image_path = `https://${process.env.AWS_BUCKET_NAME}.s3.ir-thr-at1.arvanstorage.ir/${params.Key}`;
             newImage.format = path.extname(file.originalname).replace('.', '');
             newImage.type = file.mimetype;
             newImage.size = file.size;
@@ -312,7 +331,8 @@ coreRouter.post(
             return res.status(500).json(
                 {
                     status: false,
-                    message: "server error"
+                    message: "server error",
+                    error: error
                 }
             )
         }
