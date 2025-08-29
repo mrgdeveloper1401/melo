@@ -26,6 +26,8 @@ import { confirmForgetPasswordDto } from "../../../../dtos/auth/ConfirmForgetPas
 import { requestEmailDto } from "../../../../dtos/auth/RequestEmail";
 import { ProfileDto } from "../../../../dtos/auth/ProfileDto";
 import { error } from "console";
+import { Image } from "../../../../entity/Image";
+// import { checkImageOwnership } from "../../../../middlewares/CheckOwnerImage";
 
 const userAuthRouter = express.Router()
 
@@ -1649,6 +1651,7 @@ userAuthRouter.patch(
     "/profile/",
     authenticateJWT,
     funcCheckUserActive,
+    // checkImageOwnership,
     async (req: Request, res: Response) => {
         try {
             // check json
@@ -1724,8 +1727,32 @@ userAuthRouter.patch(
                 );
             }
             
+            // validate id image
+            const imageId = req.body.profile_image_id || req.body.banner_image_id || req.body.banner_galery_image_id;
+            const imageRepository = AppDataSource.getRepository(Image);
+            const image = await imageRepository.findOne(
+                {
+                    where: {id: imageId, user: userId},
+                    select: {
+                        id: true,
+                        user: {
+                            id: true
+                        }
+                    }
+                }
+            )
+
+            if (!image) {
+                return res.status(404).json(
+                    {
+                        status: false,
+                        message: "image not found"
+                    }
+                )
+            }
+
             // update profile
-            const allowedFields = ['first_name', 'last_name', 'birth_date', 'bio', 'jobs', 'social'];
+            const allowedFields = ['first_name', 'last_name', 'birth_date', 'bio', 'jobs', 'social', 'profile_image', 'banner_image', 'banner_galery_image'];
             const updateData: Partial<Profile> = {};
             Object.keys(req.body).forEach((key) => {
                     if (allowedFields.includes(key) && req.body[key] !== undefined) {

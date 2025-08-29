@@ -271,6 +271,7 @@ coreRouter.get(
     }
 )
 
+// upload image
 coreRouter.post(
     "/upload_image/",
     authenticateJWT,
@@ -339,6 +340,7 @@ coreRouter.post(
     }
 );
 
+// get image by user
 coreRouter.get(
     "/image_uploads_user/",
     authenticateJWT,

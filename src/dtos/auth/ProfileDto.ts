@@ -1,4 +1,4 @@
-import { IsArray, IsDate, IsOptional, isString, IsString } from "class-validator";
+import { IsArray, IsDate, IsNumber, IsOptional, isString, IsString } from "class-validator";
 
 export class ProfileDto {
 
@@ -25,5 +25,17 @@ export class ProfileDto {
     @IsOptional()
     @IsArray()
     social?: string[];
+    
+    @IsOptional()
+    @IsNumber()
+    profile_image_id?: number;
+
+    @IsOptional()
+    @IsNumber()
+    banner_image_id?: number;
+
+    @IsOptional()
+    @IsNumber()
+    banner_galery_image_id?: number;
     
 }
