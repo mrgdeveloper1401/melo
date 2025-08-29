@@ -338,3 +338,45 @@ coreRouter.post(
         }
     }
 );
+
+coreRouter.get(
+    "/image_uploads_user/",
+    authenticateJWT,
+    async (req: Request, res: Response) => {
+        try {
+            // pagination data
+            const take = req.query['take'] || 20;
+            // get data
+            const imageRepository = AppDataSource.getRepository(Image);
+            const [images, total] = await imageRepository.findAndCount(
+                {
+                    where: {user: (req as any).user.user_id},
+                    relations: ['user'],
+                    select: {
+                        id: true, image_path: true,
+                        user: {
+                            id: true
+                        }
+                    },
+                    take: Number(take),
+                }
+            );
+            return res.status(200).json(
+                {
+                    status: "success",
+                    take: take,
+                    total: total,
+                    data: images
+                }
+            )
+        } catch (error) {
+            return res.status(500).json(
+                {
+                    status: false,
+                    message: "server error"
+                }
+            );
+        }
+
+    }
+)
