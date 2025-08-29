@@ -5,6 +5,8 @@ import { Request, Response } from "express";
 import multer from 'multer';
 import { upload } from "../../../utils/UploadFile";
 import { authenticateJWT } from "../../../middlewares/authenticate";
+import { Image } from "../../../entity/Image";
+import path from "path";
 
 
 export const coreRouter = express.Router();
@@ -283,10 +285,27 @@ coreRouter.post(
                     }
                 )
             }
+            
+            // save on database
+            const userId = (req as any).user.user_id; // get user on request
+            const file = req.file; // get file
+            const imageRepository = AppDataSource.getRepository(Image);
+            const newImage = new Image();
+            newImage.file_name = file.originalname;
+            newImage.image_path = file.path;
+            newImage.format = path.extname(file.originalname).replace('.', '');
+            newImage.type = file.mimetype;
+            newImage.size = file.size;
+            newImage.user = userId;
+            const savedImage = await imageRepository.save(newImage);
+
             return res.status(201).json(
                 {
                     status: "success",
-                    message: `file ${req.file.path} with upload successfully`
+                    data : {
+                        id: savedImage.id,
+                        image_path: savedImage.image_path
+                    }
                 }
             )
         } catch (error) {
