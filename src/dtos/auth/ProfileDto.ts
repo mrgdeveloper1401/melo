@@ -28,14 +28,14 @@ export class ProfileDto {
     
     @IsOptional()
     @IsNumber()
-    profile_image_id?: number;
+    profile_image?: number;
 
     @IsOptional()
     @IsNumber()
-    banner_image_id?: number;
+    banner_image?: number;
 
     @IsOptional()
     @IsNumber()
-    banner_galery_image_id?: number;
+    banner_galery_image?: number;
     
 }
