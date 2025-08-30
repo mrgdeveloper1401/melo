@@ -10,6 +10,9 @@ services:
       - 3000
     env_file: ".env"
     restart: always
+    depends_on:
+      - db
+      - redis
   
   db:
     container_name: music_db
@@ -20,22 +23,24 @@ services:
     image: docker.arvancloud.ir/postgres:17-alpine
     restart: always
     environment:
-      - POSTGRES_PASSWORD=${PROUD_POSTGRES_PASSWORD}
-  
+      - POSTGRES_PASSWORD=${PROD_POSTGRES_PASSWORD}
+      - POSTGRES_USER=${PROD_POSTGRES_USER}
+      - POSTGRES_DB=${PROD_POSTGRES_DB}
+
   redis:
     container_name: music_db_redis
     image: docker.arvancloud.ir/redis:8.2-alpine
     restart: always
     expose:
       - 6379
-  
+
   nginx:
     container_name: music_nginx
     ports:
       - "80:80"
       - "443:443"
     restart: always
-    command: ["nginx", "-g", "daemon off;"]
+    # command: ["nginx", "-g", "daemon off;"]
     build:
       context: nginx
       dockerfile: Dockerfile

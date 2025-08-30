@@ -1,4 +1,8 @@
-FROM docker.arvancloud.ir/node:22-alpine
+FROM meloroc:1.0.0
+
+WORKDIR /home/app
+
+COPY . .
 
 RUN npm i
 

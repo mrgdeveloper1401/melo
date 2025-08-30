@@ -2,11 +2,25 @@ import { createClient } from 'redis';
 import dotenv from 'dotenv';
 import path from 'path';
 
-const envPath = path.resolve(process.cwd(), "../../.env");
+const envPath = path.resolve(process.cwd(), "../../.env"); // config env path
 dotenv.config({ path: envPath });
 
+// url redis
+const DEBUG = process.env.DEBUG;
+
+const redisEnv = (debugMode = DEBUG) => {
+    if (debugMode === 'true') {
+        const url = "redis://localhost:6381/1"
+        return url
+    }
+    else {
+        const url = `redis://${process.env.PROD_REDIS_HOST}:${process.env.PROD_REDIS_PORT}/1`
+        return url;
+    }
+}
+
 export const redisClient = createClient({
-    url: `redis://${process.env.PROD_REDIS_HOST || "localhost"}:${process.env.PROD_REDIS_PORT || "6381"}/1`,
+    url: redisEnv(),
     password: process.env.PROD_REDIS_PASSWORD || undefined
 });
 

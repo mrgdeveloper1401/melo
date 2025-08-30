@@ -27,15 +27,19 @@ import { Gateway } from "./entity/Gateway";
 import { UserSubscriber } from "./utils/Subscriber/UserSubscriber";
 import { TokenBlock } from "./entity/TokenBlock";
 import { Story } from "./entity/Story";
+import dotenv from "dotenv";
 
+dotenv.config();
+
+const DEBUG=process.env.DEBUG_MODE;
 
 export const AppDataSource = new DataSource({
     type: "postgres",
-    host: "localhost",
-    port: 5434,
-    username: "postgres",
-    password: "postgres",
-    database: "music_db",
+    host: DEBUG === "true" ? "localhost" : process.env.PROD_POSTGRES_HOST,
+    port: DEBUG === "true" ? 5434: Number(process.env.PROD_POSTGRES_PORT),
+    username: DEBUG === 'true' ? "postgres": process.env.PROD_POSTGRES_USER,
+    password: DEBUG === "true" ? "postgres": process.env.PROD_POSTGRES_PASSWORD,
+    database: DEBUG === "true" ? "music_db": process.env.PROD_POSTGRES_DB,
     synchronize: true,
     logging: "all",
     entities: [
