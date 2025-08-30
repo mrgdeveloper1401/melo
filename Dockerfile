@@ -1,4 +1,4 @@
-FROM meloroc:1.0.0
+FROM meloric:1.0.0
 
 WORKDIR /home/app
 
