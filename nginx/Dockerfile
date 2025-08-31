@@ -1,5 +1,7 @@
 FROM docker.arvancloud.ir/nginx:1.29-alpine
 
-COPY . .
+RUN mkdir certbot
+
+COPY ./certbot/* /certbot/
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
