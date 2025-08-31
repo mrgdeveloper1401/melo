@@ -1,7 +1,7 @@
 FROM docker.arvancloud.ir/nginx:1.29-alpine
 
-RUN mkdir certbot
+RUN mkdir -p certbot/api.meloricdns.com
 
-COPY ./certbot/* /certbot/
+COPY ./certbot/api.meloricdns.com/* /certbot/api.meloricdns.com
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
