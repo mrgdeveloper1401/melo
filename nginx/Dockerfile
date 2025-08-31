@@ -4,4 +4,6 @@ RUN mkdir -p certbot/api.meloricdns.com
 
 COPY ./certbot/api.meloricdns.com/* /certbot/api.meloricdns.com/
 
+COPY ./nginx.conf /etc/nginx/nginx.conf
+
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
