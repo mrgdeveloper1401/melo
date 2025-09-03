@@ -272,6 +272,96 @@ coreRouter.get(
 )
 
 // upload image
+/**
+ * @swagger
+ * /v1/core/upload_image/:
+ *   post:
+ *     summary: آپلود تصویر
+ *     description: |
+ *       این endpoint برای آپلود فایل تصویر استفاده می‌شود.
+ *       نیاز به احراز هویت JWT دارد.
+ *     tags:
+ *       - Upload
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - file
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: فایل تصویر برای آپلود
+ *     responses:
+ *       201:
+ *         description: تصویر با موفقیت آپلود شد
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       description: شناسه تصویر در دیتابیس
+ *                       example: 123
+ *                     image_path:
+ *                       type: string
+ *                       description: URL عمومی تصویر آپلود شده
+ *                       example: "https://bucket-name.s3.ir-thr-at1.arvanstorage.ir/uploads/456/filename.jpg"
+ *       400:
+ *         description: فایل یافت نشد
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "file unload not found"
+ *       401:
+ *         description: عدم احراز هویت
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Unauthorized"
+ *       500:
+ *         description: خطای سرور داخلی
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "server error"
+ *                 error:
+ *                   type: object
+ *                   description: اطلاعات خطا (در حالت development)
+ */
 coreRouter.post(
     "/upload_image/",
     authenticateJWT,
