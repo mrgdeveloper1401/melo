@@ -12,6 +12,55 @@ import { CreateStoryDto } from "../../../../dtos/music/CreateStory";
 export const storyRouter = express.Router();
 
 // get all story
+/**
+ * @swagger
+ * /v1/user/music/all_user_story/:
+ *   get:
+ *     summary: دریافت لیست استوری‌های کاربران
+ *     description: |
+ *       این endpoint برای دریافت لیست استوری‌های فعال کاربران در ۲۴ ساعت گذشته استفاده می‌شود.
+ *       نیاز به احراز هویت دارد.
+ *     tags: [Story]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: شماره صفحه برای صفحه‌بندی
+ *         example: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 50
+ *           default: 20
+ *         description: تعداد آیتم‌ها در هر صفحه (حداکثر 50)
+ *         example: 20
+ *     responses:
+ *       200:
+ *         description: لیست استوری‌ها با موفقیت بازگردانده شد
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/StoryListResponse'
+ *       401:
+ *         description: عدم احراز هویت
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
+ *       500:
+ *         description: خطای سرور داخلی
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServerError'
+ */
 storyRouter.get(
     "/all_user_story/",
     authenticateJWT,
@@ -69,6 +118,69 @@ storyRouter.get(
 )
 
 // create story
+/**
+ * @swagger
+ * /v1/user/music/create_story:
+ *   post:
+ *     summary: ایجاد استوری جدید
+ *     description: |
+ *       این endpoint برای ایجاد یک استوری جدید با استفاده از تصویر آپلود شده استفاده می‌شود.
+ *       نیاز به احراز هویت دارد.
+ *     tags: [Story]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/dtos/music/create_story'
+ *     responses:
+ *       201:
+ *         description: استوری با موفقیت ایجاد شد
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/StoryCreateResponse'
+ *       400:
+ *         description: درخواست نامعتبر - بدنه درخواست ضروری است
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "request body is required"
+ *       404:
+ *         description: تصویر یافت نشد
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "image not found"
+ *       401:
+ *         description: عدم احراز هویت
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UnauthorizedError'
+ *       500:
+ *         description: خطای سرور داخلی
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServerError'
+ */
 storyRouter.post(
     "/create_story/",
     authenticateJWT,
