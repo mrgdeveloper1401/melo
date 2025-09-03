@@ -7,6 +7,7 @@ import bodyParser from "body-parser";
 import { followRouter } from "./router/v1/user/follow/follow_routers";
 import swaggerDocs from "./config/swagger";
 import { coreRouter } from "./router/v1/core/core_router";
+import { storyRouter } from "./router/v1/user/music/story_router";
 
 dotenv.config()
 
@@ -36,7 +37,10 @@ AppDataSource.initialize().then(() => {
         "/v1/core/user/notification/",
         coreRouter
     )
-
+    app.use(
+        "/v1/user/music/",
+        storyRouter
+    )
     // listen
     app.listen(port)
 
