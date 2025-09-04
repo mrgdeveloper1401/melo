@@ -9,12 +9,10 @@ export class Genre extends TimestampEntity{
   @Column()
   name: string;
 
-  @Column('text')
+  @Column('text', {nullable: true})
   description: string;
 
   @Column({ default: true })
   is_active: boolean;
 
-  // @CreateDateColumn()
-  // createdAt: Date;
 }

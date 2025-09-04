@@ -8,6 +8,7 @@ import { followRouter } from "./router/v1/user/follow/follow_routers";
 import swaggerDocs from "./config/swagger";
 import { coreRouter } from "./router/v1/core/core_router";
 import { storyRouter } from "./router/v1/user/music/story_router";
+import { genreRouter } from "./router/v1/user/music/GenreRouter";
 
 dotenv.config()
 
@@ -40,6 +41,10 @@ AppDataSource.initialize().then(() => {
     app.use(
         "/v1/user/music/",
         storyRouter
+    )
+    app.use(
+        "/v1/user/genre/",
+        genreRouter
     )
 
     // listen
