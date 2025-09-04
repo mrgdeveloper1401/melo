@@ -7,7 +7,7 @@ export const genreRouter = Router();
 // genre list
 /**
  * @swagger
- * /v1/genre/genre_list/:
+ * /v1/user/genre/genre_list/:
  *   get:
  *     summary: دریافت لیست تمام ژانرهای فعال
  *     description: |
@@ -90,3 +90,4 @@ genreRouter.get(
         }
     }
 );
+

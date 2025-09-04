@@ -28,11 +28,6 @@ export class Album extends TimestampEntity{
   @JoinColumn({name: "user_id"})
   user: User;
 
-  // @CreateDateColumn()
-  // createdAt: Date;
-
-  // @UpdateDateColumn()
-  // updatedAt: Date;
 
 //   @DeleteDateColumn()
 //   deletedAt: Date;
