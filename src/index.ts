@@ -41,6 +41,7 @@ AppDataSource.initialize().then(() => {
         "/v1/user/music/",
         storyRouter
     )
+
     // listen
     app.listen(port)
 

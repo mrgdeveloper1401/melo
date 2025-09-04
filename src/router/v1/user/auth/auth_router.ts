@@ -2394,6 +2394,160 @@ userAuthRouter.post(
 
 });
 
+// all user
+/**
+ * @swagger
+ * /v1/auth/user/all_user/:
+ *   get:
+ *     summary: دریافت لیست تمام کاربران فعال
+ *     description: |
+ *       این endpoint برای دریافت لیست تمام کاربران فعال سیستم با اطلاعات پایه پروفایل استفاده می‌شود.
+ *       نیاز به احراز هویت JWT دارد.
+ *     tags:
+ *       - Users
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 20
+ *         description: تعداد آیتم‌ها در هر صفحه (حداکثر 100)
+ *         example: 20
+ *     responses:
+ *       200:
+ *         description: لیست کاربران با موفقیت بازگردانده شد
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         description: شناسه کاربر
+ *                         example: 1
+ *                       username:
+ *                         type: string
+ *                         description: نام کاربری
+ *                         example: "john_doe"
+ *                       profile:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                             description: شناسه پروفایل
+ *                             example: 1
+ *                           profile_image:
+ *                             type: object
+ *                             properties:
+ *                               id:
+ *                                 type: integer
+ *                                 description: شناسه تصویر پروفایل
+ *                                 example: 5
+ *                               image_path:
+ *                                 type: string
+ *                                 description: مسیر تصویر پروفایل
+ *                                 example: "https://example.com/images/profile.jpg"
+ *                 page:
+ *                   type: integer
+ *                   description: شماره صفحه فعلی (همیشه 1)
+ *                   example: 1
+ *                 count:
+ *                   type: integer
+ *                   description: تعداد کل کاربران فعال
+ *                   example: 150
+ *       401:
+ *         description: عدم احراز هویت
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Unauthorized"
+ *       500:
+ *         description: خطای سرور داخلی
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "server error"
+ */
+userAuthRouter.get(
+    "/all_user/",
+    authenticateJWT,
+    async (req: Request, res: Response) => {
+        try {
+            const limit = parseInt(req.query.limit as string) || 20;
+            const page = 1;
+            const skip = (page - 1) * limit;
+            const userRepository = AppDataSource.getRepository(User);
+
+            // count data
+            const count = await userRepository.count(
+                {
+                    where: {is_active: true}
+                }
+            );
+
+            // join data
+            const allUser = await userRepository
+            .createQueryBuilder("user")
+            .leftJoinAndSelect("user.profile", "profile")
+            .leftJoinAndSelect("profile.profile_image", "profile_image")
+            .select([
+            "user.id",
+            "user.username",
+            "profile.id",
+            "profile_image.id",
+            "profile_image.image_path",
+            ])
+            .where("user.is_active = :active", { active: true })
+            .orderBy("user.id", "ASC")
+            .skip(skip)
+            .take(limit)
+            .getMany();
+            // return data
+            return res.status(200).json(
+                {
+                    status: "success",
+                    data: allUser,
+                    page: page,
+                    count: count
+                }
+            )
+        } catch (error) {
+            return res.status(500).json(
+                {
+                    message: "server error",
+                    status: false
+                }
+            )
+        }
+    }
+)
+
 export {
     userAuthRouter
 }

@@ -109,8 +109,7 @@ storyRouter.get(
             return res.status(500).json(
                 {
                     message: "server error",
-                    status: false,
-                    errors: error
+                    status: false
                 }
             )
         }
