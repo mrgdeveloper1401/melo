@@ -1,7 +1,8 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
 import { Image } from "./Image";
 import { User } from "./User";
 import { TimestampEntity } from "./Abstract";
+import { Genre } from "./Genre";
 
 @Entity()
 export class Album extends TimestampEntity{
@@ -27,6 +28,22 @@ export class Album extends TimestampEntity{
   @ManyToOne(() => User, {onDelete: "RESTRICT"})
   @JoinColumn({name: "user_id"})
   user: User;
+
+  @ManyToMany(() => Genre, {eager: true})
+  @JoinTable(
+    {
+      name: "album_genres",
+      joinColumn: {
+        name: "album_id",
+        referencedColumnName: "id"
+      },
+      inverseJoinColumn: {
+        name: "genre_id",
+        referencedColumnName: "id"
+      }
+    }
+  )
+  genres: Genre[];
 
 
 //   @DeleteDateColumn()
