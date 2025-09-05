@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, JoinColumn } from "t
 import { Album } from "./Album";
 import { Artist } from "./Artist";
 import { TimestampEntity } from "./Abstract";
+import { Audio } from "./Audio";
 
 @Entity()
 export class Song extends TimestampEntity{
@@ -28,14 +29,8 @@ export class Song extends TimestampEntity{
   @Column()
   play_count: number;
 
-  // @ManyToOne(() => Genre, {onDelete: "RESTRICT"})
-  // @JoinColumn({name: "genre_id"})
-  // genre: Genre;
-
-  // @CreateDateColumn()
-  // createdAt: Date;
-
-  // @UpdateDateColumn()
-  // updatedAt: Date;
+  @ManyToOne(() => Audio)
+  @JoinColumn({name: "audio_id"})
+  audio: Audio
 
 }

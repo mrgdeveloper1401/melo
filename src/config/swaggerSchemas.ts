@@ -39,4 +39,14 @@
  *           type: string
  *         value:
  *           type: object
+ * 
+ *     UnauthorizedError:
+ *       type: object
+ *       properties:
+ *         status:
+ *           type: boolean
+ *           example: false
+ *         message:
+ *           type: string
+ *           example: "Unauthorized"
  */
