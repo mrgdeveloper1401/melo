@@ -1,7 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, JoinColumn } from "typeorm";
 import { Album } from "./Album";
 import { Artist } from "./Artist";
-import { Genre } from "./Genre";
 import { TimestampEntity } from "./Abstract";
 
 @Entity()
@@ -29,9 +28,9 @@ export class Song extends TimestampEntity{
   @Column()
   play_count: number;
 
-  @ManyToOne(() => Genre, {onDelete: "RESTRICT"})
-  @JoinColumn({name: "genre_id"})
-  genre: Genre;
+  // @ManyToOne(() => Genre, {onDelete: "RESTRICT"})
+  // @JoinColumn({name: "genre_id"})
+  // genre: Genre;
 
   // @CreateDateColumn()
   // createdAt: Date;
